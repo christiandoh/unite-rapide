@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum StatutUser {
+  actif
+  suspendu
+  banni
+}
+
+enum TypeService {
+  forfait_internet
+  credit_appel
+  forfait_mixte
+  abonnement
+}
+
+enum StatutCommande {
+  en_attente_paiement
+  paiement_soumis
+  paiement_valide
+  paiement_rejete
+  en_cours_execution
+  execute
+  echoue
+  rembourse
+}
+
+enum StatutValidation {
+  en_attente
+  valide_auto
+  valide_manuel
+  rejete
+  a_reviser
+}
+
+enum StatutPhone {
+  en_ligne
+  hors_ligne
+  occupe
+  maintenance
+  erreur
+}
+
+enum StatutExecution {
+  en_attente
+  en_cours
+  reussi
+  echoue
+  timeout
+  annule
+}
+
+enum SeveriteLog {
+  debug
+  info
+  warning
+  error
+  critical
+}
+
+model User {
+  id               String     @id @default(uuid()) @db.Uuid
+  nom              String     @db.VarChar(100)
+  prenom           String?    @db.VarChar(100)
+  telephone        String     @unique @db.VarChar(20)
+  email            String?    @unique @db.VarChar(255)
+  motDePasseHash   String     @map("mot_de_passe_hash") @db.VarChar(255)
+  emailVerifie     Boolean    @default(false) @map("email_verifie")
+  telephoneVerifie Boolean    @default(false) @map("telephone_verifie")
+  statut           String     @default("actif") @db.VarChar(20)
+  role             String     @default("user") @db.VarChar(20)
+  derniereConnexion DateTime? @map("derniere_connexion")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  commandes       Commande[]
+  preuvesPaiement PreuvePaiement[]      @relation("ValidationManuelle")
+  notifications   Notification[]
+  logsTransaction TransactionLog[]
+
+  @@map("users")
+}
+
+model Operateur {
+  id       String  @id @default(uuid()) @db.Uuid
+  nom      String  @unique @db.VarChar(50)
+  codePays String  @default("+225") @map("code_pays") @db.VarChar(5)
+  prefixe  String? @db.VarChar(10)
+  logoUrl  String? @map("logo_url") @db.VarChar(255)
+  actif    Boolean @default(true)
+
+  services             ServiceCatalogue[]
+  telephonesExecuteurs TelephoneExecuteur[]
+
+  @@map("operateurs")
+}
+
+model ServiceCatalogue {
+  id                  String   @id @default(uuid()) @db.Uuid
+  operateurId         String   @map("operateur_id") @db.Uuid
+  nom                 String   @db.VarChar(255)
+  description         String?  @db.Text
+  typeService         String   @map("type_service") @db.VarChar(50)
+  codeUssd            String   @map("code_ussd") @db.VarChar(20)
+  sequenceUssd        Json     @map("sequence_ussd") @db.JsonB
+  montantWave         Decimal  @map("montant_wave") @db.Decimal(10, 2)
+  volumeData          String?  @map("volume_data") @db.VarChar(50)
+  dureeValidite       String?  @map("duree_validite") @db.VarChar(50)
+  tempsExecutionMoyen Int      @default(30) @map("temps_execution_moyen")
+  actif               Boolean  @default(true)
+  populaire           Boolean  @default(false)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  operateur Operateur  @relation(fields: [operateurId], references: [id])
+  commandes Commande[]
+
+  @@map("services_catalogue")
+}
+
+model Commande {
+  id                   String   @id @default(uuid()) @db.Uuid
+  userId               String   @map("user_id") @db.Uuid
+  serviceId            String   @map("service_id") @db.Uuid
+  telephoneBeneficiaire String  @map("telephone_beneficiaire") @db.VarChar(20)
+  referenceUnique      String   @unique @map("reference_unique") @db.VarChar(20)
+  montant              Decimal  @db.Decimal(10, 2)
+  lienPaiementWave     String   @map("lien_paiement_wave") @db.Text
+  statutCommande       String   @default("en_attente_paiement") @map("statut_commande") @db.VarChar(30)
+  dateExpirationPaiement DateTime? @map("date_expiration_paiement")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  user            User            @relation(fields: [userId], references: [id])
+  service         ServiceCatalogue @relation(fields: [serviceId], references: [id])
+  preuvesPaiement PreuvePaiement[]
+  tachesUssd      TacheUSSD[]
+  logsTransaction TransactionLog[]
+
+  @@index([userId])
+  @@index([statutCommande])
+  @@index([referenceUnique])
+  @@map("commandes")
+}
+
+model PreuvePaiement {
+  id                  String   @id @default(uuid()) @db.Uuid
+  commandeId          String   @map("commande_id") @db.Uuid
+  imageOriginaleUrl   String   @map("image_originale_url") @db.Text
+  imageTraiteeUrl     String?  @map("image_traitee_url") @db.Text
+  donneesExtraites    Json?    @map("donnees_extraites") @db.JsonB
+  scoreConfiance      Decimal? @map("score_confiance") @db.Decimal(5, 2)
+  flagsFraude         Json?    @default("[]") @map("flags_fraude") @db.JsonB
+  statutValidation    String   @default("en_attente") @map("statut_validation") @db.VarChar(30)
+  validePar           String?  @map("valide_par") @db.Uuid
+  commentaireValidation String? @map("commentaire_validation") @db.Text
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  commande      Commande @relation(fields: [commandeId], references: [id])
+  valideParUser User?    @relation("ValidationManuelle", fields: [validePar], references: [id])
+
+  @@map("preuves_paiement")
+}
+
+model TelephoneExecuteur {
+  id              String   @id @default(uuid()) @db.Uuid
+  nomAppareil     String   @map("nom_appareil") @db.VarChar(100)
+  modele          String?  @db.VarChar(100)
+  numeroTelephone String   @unique @map("numero_telephone") @db.VarChar(20)
+  operateurId     String   @map("operateur_id") @db.Uuid
+  tokenAuth       String   @unique @map("token_auth") @db.VarChar(255)
+  statut          String   @default("hors_ligne") @db.VarChar(20)
+  niveauBatterie  Int?     @map("niveau_batterie")
+  forceSignal     Int?     @map("force_signal")
+  versionApp      String?  @map("version_app") @db.VarChar(20)
+  derniereConnexion DateTime? @map("derniere_connexion")
+  ipAddress       String?  @map("ip_address") @db.VarChar(45)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  operateur  Operateur  @relation(fields: [operateurId], references: [id])
+  tachesUssd TacheUSSD[]
+
+  @@map("telephones_executeurs")
+}
+
+model TacheUSSD {
+  id                   String   @id @default(uuid()) @db.Uuid
+  commandeId           String   @map("commande_id") @db.Uuid
+  telephoneExecuteurId String?  @map("telephone_executeur_id") @db.Uuid
+  priorite             Int      @default(5)
+  statutExecution      String   @default("en_attente") @map("statut_execution") @db.VarChar(30)
+  logsExecution        Json?    @default("[]") @map("logs_execution") @db.JsonB
+  nombreTentatives     Int      @default(0) @map("nombre_tentatives")
+  tentativeMax         Int      @default(3) @map("tentative_max")
+  dateDebutExecution   DateTime? @map("date_debut_execution")
+  dateFinExecution     DateTime? @map("date_fin_execution")
+  messageErreur        String?  @map("message_erreur") @db.Text
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  commande        Commande           @relation(fields: [commandeId], references: [id])
+  telephoneExecuteur TelephoneExecuteur? @relation(fields: [telephoneExecuteurId], references: [id])
+
+  @@index([priorite, statutExecution])
+  @@map("taches_ussd")
+}
+
+model TransactionLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  typeEvenement String  @map("type_evenement") @db.VarChar(50)
+  severite     String   @default("info") @db.VarChar(20)
+  details      Json?    @default("{}") @db.JsonB
+  userId       String?  @map("user_id") @db.Uuid
+  commandeId   String?  @map("commande_id") @db.Uuid
+  adresseIp    String?  @map("adresse_ip") @db.VarChar(45)
+  userAgent    String?  @map("user_agent") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user    User?     @relation(fields: [userId], references: [id])
+  commande Commande? @relation(fields: [commandeId], references: [id])
+
+  @@index([createdAt])
+  @@map("transactions_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  type      String   @db.VarChar(50)
+  titre     String   @db.VarChar(255)
+  message   String   @db.Text
+  lu        Boolean  @default(false)
+  donnees   Json?    @default("{}") @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}

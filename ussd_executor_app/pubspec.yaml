@@ -1,0 +1,25 @@
+name: ussd_executor_app
+description: USSD Executor - Téléphone exécuteur de codes USSD
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  socket_io_client: ^2.0.3+1
+  http: ^1.2.1
+  get_it: ^7.7.0
+  phosphor_flutter: ^2.1.0
+  shared_preferences: ^2.2.2
+  wakelock_plus: ^1.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
