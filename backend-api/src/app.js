@@ -45,6 +45,7 @@ app.use(globalLimiter);
 
 app.use(requestLogger);
 
+app.get('/api/', (req, res) => res.redirect('/api/health'));
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
