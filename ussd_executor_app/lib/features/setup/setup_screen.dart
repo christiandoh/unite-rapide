@@ -37,7 +37,8 @@ class _SetupScreenState extends State<SetupScreen> {
     try {
       final hasScheme = raw.startsWith('http://') || raw.startsWith('https://');
       final host = hasScheme ? Uri.parse(raw).host : raw;
-      final scheme = hasScheme ? Uri.parse(raw).scheme : (host.contains('.') ? 'https' : 'http');
+      final isIp = RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$').hasMatch(host);
+      final scheme = hasScheme ? Uri.parse(raw).scheme : (isIp ? 'http' : 'https');
       final port = hasScheme ? (Uri.parse(raw).port == 80 || Uri.parse(raw).port == 443 ? '' : ':${Uri.parse(raw).port}') : '';
       final base = '${scheme}://$host$port';
       final url = '$base/unite/api/phone/lookup';
