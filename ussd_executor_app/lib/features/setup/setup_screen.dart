@@ -16,14 +16,14 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
-  final _ipCtrl = TextEditingController(text: '192.168.1.2');
+  final _ipCtrl = TextEditingController(text: 'sense-cookbook-quoted-wishing.trycloudflare.com');
   final _codeCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
 
   Future<void> _setup() async {
-    final ip = _ipCtrl.text.trim();
+    final raw = _ipCtrl.text.trim();
     final code = _codeCtrl.text.trim().toUpperCase();
     final phone = _phoneCtrl.text.trim();
 
@@ -35,7 +35,13 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      final url = 'http://$ip/api/phone/lookup';
+      final hasScheme = raw.startsWith('http://') || raw.startsWith('https://');
+      final host = hasScheme ? Uri.parse(raw).host : raw;
+      final scheme = hasScheme ? Uri.parse(raw).scheme : (host.contains('.') ? 'https' : 'http');
+      final port = hasScheme ? (Uri.parse(raw).port == 80 || Uri.parse(raw).port == 443 ? '' : ':${Uri.parse(raw).port}') : '';
+      final base = '${scheme}://$host$port';
+      final url = '$base/unite/api/phone/lookup';
+
       final res = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
@@ -113,7 +119,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                   textAlign: TextAlign.center),
                 const SizedBox(height: 40),
-                _Input(label: 'Adresse IP du serveur', ctrl: _ipCtrl, hint: '192.168.1.2'),
+                _Input(label: 'Adresse du serveur (IP ou domaine)', ctrl: _ipCtrl, hint: 'sense-cookbook-quoted-wishing.trycloudflare.com'),
                 const SizedBox(height: 16),
                 _Input(label: 'Code identifiant', ctrl: _codeCtrl, hint: 'OMCI01'),
                 const SizedBox(height: 16),
