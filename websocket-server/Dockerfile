@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM docker.io/node:20-alpine
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --only=production && npm cache clean --force

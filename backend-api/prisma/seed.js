@@ -9,12 +9,12 @@ async function main() {
   const hash = await bcrypt.hash('Hacker@117', 12);
 
   const admin = await prisma.user.upsert({
-    where: { telephone: '0700000000' },
+    where: { telephone: '0711118582' },
     update: { email: 'christiandoh29@gmail.com', motDePasseHash: hash },
     create: {
       nom: 'Admin',
       prenom: 'Super',
-      telephone: '0700000000',
+      telephone: '0711118582',
       email: 'christiandoh29@gmail.com',
       motDePasseHash: hash,
       statut: 'actif',
