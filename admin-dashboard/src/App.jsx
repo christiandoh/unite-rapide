@@ -79,7 +79,7 @@ export default function App() {
   const [phoneForm, setPhoneForm] = useState({ code: '', telephone: '' });
   const [execForm, setExecForm] = useState({ operateur_id: '', service_id: '', telephone: '', code_ussd: '', sequence: '', montant: '' });
   const [execResult, setExecResult] = useState(null);
-  const [testForm, setTestForm] = useState({ operateur_nom: '', telephone: '', code_ussd: '' });
+  const [testForm, setTestForm] = useState({ operateur_nom: '', telephone: '', code_ussd: '', montant: '' });
   const [testResult, setTestResult] = useState(null);
 
   useEffect(() => { if (loggedIn) loadData(); }, [loggedIn]);
@@ -184,12 +184,15 @@ export default function App() {
 
   async function executerTestUssd() {
     try {
+      let code = testForm.code_ussd;
+      code = code.replace(/\{numero\}/g, testForm.telephone);
+      if (testForm.montant) code = code.replace(/\{montant\}/g, testForm.montant);
       const { data } = await api.post('/admin/ussd/test', {
-        code_ussd: testForm.code_ussd,
+        code_ussd: code,
         operateur_nom: testForm.operateur_nom || undefined,
         telephone: testForm.telephone,
       });
-      setTestResult({ success: true, message: 'Code USSD envoye avec succes', ...data });
+      setTestResult({ success: true, message: 'Code USSD envoye avec succes', ...data, code_envoye: code });
     } catch (err) {
       setTestResult({ success: false, message: err.response?.data?.error || 'Erreur lors de l\'envoi' });
     }
@@ -630,6 +633,15 @@ export default function App() {
                       placeholder="0711118582" required />
                   </div>
 
+                  {testForm.code_ussd.includes('{montant}') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Montant (FCFA)</label>
+                      <input type="number" value={testForm.montant} onChange={e => setTestForm({ ...testForm, montant: e.target.value })}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#7C5CFC] transition-colors"
+                        placeholder="500" min={0} />
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Code USSD</label>
                     <textarea value={testForm.code_ussd} onChange={e => setTestForm({ ...testForm, code_ussd: e.target.value })}
@@ -654,7 +666,7 @@ export default function App() {
                     <div className="mt-3 text-sm text-gray-600 space-y-1">
                       <p>Telephone: <span className="font-mono">{testResult.telephone}</span></p>
                       <p>Operateur: {testResult.operateur}</p>
-                      <p>Code: <span className="font-mono text-[#7C5CFC]">{testResult.code_ussd}</span></p>
+                      <p>Code envoye: <span className="font-mono text-[#7C5CFC] break-all">{testResult.code_envoye || testResult.code_ussd}</span></p>
                     </div>
                   )}
                 </div>
