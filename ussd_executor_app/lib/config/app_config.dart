@@ -1,5 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+const String kApiBaseUrl = 'https://sense-cookbook-quoted-wishing.trycloudflare.com/unite/api';
+const String kWsBaseUrl = 'wss://sense-cookbook-quoted-wishing.trycloudflare.com/unite/ws';
+
 class AppConfig {
   String serverUrl;
   String wsUrl;
@@ -7,8 +10,8 @@ class AppConfig {
   String phoneName;
 
   AppConfig({
-    this.serverUrl = 'http://192.168.1.2',
-    this.wsUrl = 'http://192.168.1.2:8080',
+    this.serverUrl = kApiBaseUrl,
+    this.wsUrl = kWsBaseUrl,
     this.phoneToken = '',
     this.phoneName = '',
   });
@@ -17,8 +20,8 @@ class AppConfig {
 
   factory AppConfig.fromMap(Map<String, dynamic> map) {
     return AppConfig(
-      serverUrl: map['server_url'] ?? 'http://192.168.1.2',
-      wsUrl: map['ws_url'] ?? 'http://192.168.1.2:8080',
+      serverUrl: map['server_url'] ?? kApiBaseUrl,
+      wsUrl: map['ws_url'] ?? kWsBaseUrl,
       phoneToken: map['token'] ?? '',
       phoneName: map['name'] ?? '',
     );
@@ -34,8 +37,8 @@ class AppConfig {
 
   Future<void> loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    serverUrl = prefs.getString('server_url') ?? 'http://192.168.1.2';
-    wsUrl = prefs.getString('ws_url') ?? 'http://192.168.1.2:8080';
+    serverUrl = prefs.getString('server_url') ?? kApiBaseUrl;
+    wsUrl = prefs.getString('ws_url') ?? kWsBaseUrl;
     phoneToken = prefs.getString('phone_token') ?? '';
     phoneName = prefs.getString('phone_name') ?? '';
   }
