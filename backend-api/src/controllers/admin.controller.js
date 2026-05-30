@@ -631,7 +631,7 @@ async function testUssd(req, res, next) {
       phoneId: phone.id,
     }));
 
-    await publisher.disconnect().catch(() => {});
+    try { publisher.disconnect(); } catch (_) {}
 
     logger.info('USSD test envoye au telephone', { code: code_ussd, phone: phone.numeroTelephone, operateur: phone.operateur?.nom });
 
