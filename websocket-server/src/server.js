@@ -42,6 +42,32 @@ const io = new Server(server, {
 const phones = new Map();
 const webClients = new Map();
 
+io.on('connection', async (socket) => {
+  const token = socket.handshake.auth?.token;
+  if (token) {
+    try {
+      const phoneData = await redis.get(`phone:token:${token}`);
+      if (phoneData) {
+        const phone = JSON.parse(phoneData);
+        socket.phoneId = phone.id;
+        socket.operator = phone.operateur;
+        socket.phoneNumber = phone.numeroTelephone;
+        handlePhoneConnection(socket);
+        return;
+      }
+    } catch (_) {}
+  }
+  const webId = socket.id;
+  webClients.set(webId, { socketId: webId, connectedAt: new Date() });
+  logger.info(`🌐 Client Web connecté: ${webId}`);
+  socket.on('subscribe:commande', (commandeId) => socket.join(`commande:${commandeId}`));
+  socket.on('unsubscribe:commande', (commandeId) => socket.leave(`commande:${commandeId}`));
+  socket.on('disconnect', () => {
+    webClients.delete(webId);
+    logger.info(`🌐 Client Web déconnecté: ${webId}`);
+  });
+});
+
 io.of('/phones').use(async (socket, next) => {
   const token = socket.handshake.auth?.token;
   if (!token) return next(new Error('Token d\'authentification requis'));
@@ -59,6 +85,10 @@ io.of('/phones').use(async (socket, next) => {
 });
 
 io.of('/phones').on('connection', (socket) => {
+  handlePhoneConnection(socket);
+});
+
+function handlePhoneConnection(socket) {
   logger.info(`📱 Téléphone connecté: ${socket.phoneNumber} (${socket.operator})`);
 
   phones.set(socket.phoneId, {
@@ -146,7 +176,7 @@ io.of('/phones').on('connection', (socket) => {
       status: 'hors_ligne',
     });
   });
-});
+}
 
 io.of('/web').on('connection', (socket) => {
   logger.info(`🌐 Client Web connecté: ${socket.id}`);
