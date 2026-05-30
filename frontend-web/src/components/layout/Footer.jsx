@@ -9,7 +9,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Activity className="w-5 h-5 text-[#7C5CFC]" />
-              <span className="font-bold text-white">USSD Automation</span>
+              <span className="font-bold text-white">Unite Rapide</span>
             </div>
             <p className="text-sm leading-relaxed text-white/50">
               Plateforme de souscription de forfaits mobile en Cote d'Ivoire. Orange, MTN et Moov.
@@ -34,12 +34,12 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 text-sm">
               <Mail className="w-4 h-4 text-[#7C5CFC]" />
-              <span>support@ussd-automation.com</span>
+              <span>contact@unite-rapide.ci</span>
             </div>
           </div>
         </div>
         <div className="border-t border-white/10 mt-8 pt-6 text-center text-sm text-white/40">
-          <p>USSD Automation &copy; {new Date().getFullYear()} - Cote d'Ivoire</p>
+          <p>Unite Rapide &copy; {new Date().getFullYear()} - Cote d'Ivoire</p>
         </div>
       </div>
     </footer>

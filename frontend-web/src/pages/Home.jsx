@@ -45,9 +45,9 @@ function CountUp({ end, suffix = '' }) {
 }
 
 const operators = [
-  { name: 'Orange CI', color: 'from-orange-500 to-orange-600' },
-  { name: 'MTN CI', color: 'from-yellow-500 to-yellow-600' },
-  { name: 'Moov', color: 'from-red-500 to-red-600' },
+  { name: 'Orange CI', logo: '/unite/logo_orange.jpg', color: 'from-orange-500 to-orange-600' },
+  { name: 'MTN CI', logo: '/unite/Mtn_ci_.jpg', color: 'from-yellow-500 to-yellow-600' },
+  { name: 'Moov', logo: '/unite/moov_ci_logo.jpg', color: 'from-red-500 to-red-600' },
 ];
 
 const stats = [
@@ -120,11 +120,11 @@ export default function Home() {
       <AnimatedSection className="py-12 border-y border-white/5">
         <div className="max-w-5xl mx-auto px-6">
           <p className="text-center text-sm text-white/30 mb-6 uppercase tracking-widest">Operateurs partenaires</p>
-          <div className="flex items-center justify-center gap-8 md:gap-16">
-            {operators.map((op, i) => (
-              <div key={op.name} className={`flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r ${op.color}/10 border border-white/5 backdrop-blur-sm`}>
-                <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${op.color}`} />
-                <span className="text-white/70 font-medium">{op.name}</span>
+          <div className="flex items-center justify-center gap-6 md:gap-12 flex-wrap">
+            {operators.map((op) => (
+              <div key={op.name} className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors">
+                <img src={op.logo} alt={op.name} className="w-8 h-8 rounded-lg object-contain" />
+                <span className="text-white/80 font-medium text-sm">{op.name}</span>
               </div>
             ))}
           </div>

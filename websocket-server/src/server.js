@@ -43,7 +43,14 @@ const phones = new Map();
 const webClients = new Map();
 
 io.on('connection', async (socket) => {
-  const token = socket.handshake.auth?.token;
+  console.log('🔌 Nouvelle connexion Socket.IO:', socket.id, 'namespace:', socket.nsp?.name || '/');
+  let token = socket.handshake.auth?.token;
+  if (!token && socket.handshake.query?.token) token = socket.handshake.query.token;
+  if (!token) {
+    const url = socket.request?.url || '';
+    const match = url.match(/[?&]token=([^&]+)/);
+    if (match) token = decodeURIComponent(match[1]);
+  }
   if (token) {
     try {
       const phoneData = await redis.get(`phone:token:${token}`);
@@ -57,6 +64,7 @@ io.on('connection', async (socket) => {
       }
     } catch (_) {}
   }
+  console.log('🕸️ Traite comme client web:', socket.id);
   const webId = socket.id;
   webClients.set(webId, { socketId: webId, connectedAt: new Date() });
   logger.info(`🌐 Client Web connecté: ${webId}`);
