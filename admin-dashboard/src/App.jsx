@@ -633,14 +633,12 @@ export default function App() {
                       placeholder="0711118582" required />
                   </div>
 
-                  {testForm.code_ussd.includes('{montant}') && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Montant (FCFA)</label>
-                      <input type="number" value={testForm.montant} onChange={e => setTestForm({ ...testForm, montant: e.target.value })}
-                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#7C5CFC] transition-colors"
-                        placeholder="500" min={0} />
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Montant (FCFA)</label>
+                    <input type="number" value={testForm.montant} onChange={e => setTestForm({ ...testForm, montant: e.target.value })}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#7C5CFC] transition-colors"
+                      placeholder="500" min={0} />
+                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Code USSD</label>
