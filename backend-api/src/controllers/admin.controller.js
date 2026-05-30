@@ -469,6 +469,34 @@ async function createTelephone(req, res, next) {
   }
 }
 
+async function updateTelephone(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { code, telephone, operateur_id } = req.body;
+
+    const phone = await prisma.telephoneExecuteur.findUnique({ where: { id } });
+    if (!phone) return res.status(404).json({ error: 'Telephone non trouve' });
+
+    if (telephone && telephone !== phone.numeroTelephone) {
+      const existant = await prisma.telephoneExecuteur.findUnique({ where: { numeroTelephone: telephone } });
+      if (existant) return res.status(409).json({ error: 'Ce numero est deja utilise' });
+    }
+
+    const updated = await prisma.telephoneExecuteur.update({
+      where: { id },
+      data: {
+        ...(code && { nomAppareil: code }),
+        ...(telephone && { numeroTelephone: telephone }),
+        ...(operateur_id && { operateurId: operateur_id }),
+      },
+    });
+    logger.info('Telephone modifie', { id, code: updated.nomAppareil });
+    res.json({ message: 'Telephone modifie', telephone: updated });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function deleteTelephone(req, res, next) {
   try {
     const { id } = req.params;
@@ -491,4 +519,4 @@ async function deleteTelephone(req, res, next) {
   }
 }
 
-module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, deleteTelephone };
+module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone };

@@ -10,6 +10,7 @@ router.use(authenticate, requireAdmin);
 router.get('/dashboard', adminController.dashboard);
 router.get('/telephones', adminController.telephones);
 router.post('/telephones', adminController.createTelephone);
+router.put('/telephones/:id', adminController.updateTelephone);
 router.delete('/telephones/:id', adminController.deleteTelephone);
 router.get('/commandes', adminController.commandes);
 router.post('/commandes/:id/revalider', validate('revalidation'), adminController.revalider);
