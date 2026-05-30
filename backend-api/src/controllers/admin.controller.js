@@ -539,7 +539,7 @@ async function executerUssd(req, res, next) {
       where: {
         telephoneBeneficiaire: telephone_beneficiaire,
         serviceId: service_id,
-        statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'paiement_valide', 'en_cours_execution'] },
+        statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'en_cours_execution'] },
         createdAt: { gte: new Date(Date.now() - 3600000) },
       },
     });

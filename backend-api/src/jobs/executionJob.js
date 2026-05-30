@@ -97,6 +97,11 @@ executionQueue.process(async (job) => {
       phoneId: phone.id,
     }));
 
+    await prisma.commande.update({
+      where: { id: commandeId },
+      data: { statutCommande: 'en_cours_execution' },
+    });
+
     await prisma.telephoneExecuteur.update({
       where: { id: phone.id },
       data: { statut: 'occupe' },
