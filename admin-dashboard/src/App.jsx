@@ -34,14 +34,14 @@ const NAV = [
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-sm font-medium text-gray-500">{label}</span>
-        <div className={`p-2.5 rounded-xl ${color}`}>
-          <Icon className="w-5 h-5 text-white" />
+    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-lg transition-shadow duration-300">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <span className="text-xs sm:text-sm font-medium text-gray-500">{label}</span>
+        <div className={`p-2 sm:p-2.5 rounded-xl ${color}`}>
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </div>
       </div>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
       {sub && <p className="text-sm text-gray-400 mt-1">{sub}</p>}
     </div>
   );
@@ -51,14 +51,14 @@ function Modal({ open, onClose, title, children }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-[95%] sm:max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">{title}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XCircle className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </div>
     </div>
   );
@@ -305,10 +305,10 @@ export default function App() {
             </div>
             <span className="font-bold text-gray-900">Unite Rapide</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto flex-nowrap">
             {NAV.map(n => (
               <button key={n.key} onClick={() => setTab(n.key)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                   tab === n.key ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500'
                 }`}>{n.label}</button>
             ))}
@@ -321,8 +321,8 @@ export default function App() {
           {tab === 'dashboard' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 text-sm mt-1">Aperçu de votre plateforme USSD</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Aperçu de votre plateforme USSD</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -333,7 +333,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6">
+                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 overflow-x-auto">
                   <h3 className="font-semibold text-gray-900 mb-4">Évolution des commandes</h3>
                   {h?.quotidien ? (
                     <ResponsiveContainer width="100%" height={280}>
@@ -389,20 +389,20 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Forfaits populaires</h3>
-                  <button onClick={() => setTab('services')} className="text-sm text-[#7C5CFC] font-medium hover:underline">Voir tout</button>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Forfaits populaires</h3>
+                  <button onClick={() => setTab('services')} className="text-xs sm:text-sm text-[#7C5CFC] font-medium hover:underline">Voir tout</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {data.services.filter(s => s.actif).slice(0, 6).map(s => (
                     <div key={s.id} className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-[#7C5CFC] uppercase bg-[#7C5CFC]/5 px-2 py-1 rounded-lg">{s.operateur.nom}</span>
-                        {s.populaire && <Star className="w-4 h-4 text-[#FFB84D] fill-[#FFB84D]" />}
+                        {s.populaire && <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFB84D] fill-[#FFB84D]" />}
                       </div>
-                      <p className="font-semibold text-gray-900">{s.nom}</p>
-                      <p className="text-2xl font-bold text-gray-900 mt-1">{Number(s.montantWave).toLocaleString()} <span className="text-sm font-normal text-gray-400">F</span></p>
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">{s.nom}</p>
+                      <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{Number(s.montantWave).toLocaleString()} <span className="text-xs sm:text-sm font-normal text-gray-400">F</span></p>
                     </div>
                   ))}
                 </div>
@@ -413,53 +413,55 @@ export default function App() {
           {tab === 'commandes' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Commandes</h1>
-                <p className="text-gray-500 text-sm mt-1">Historique des transactions</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Commandes</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Historique des transactions</p>
               </div>
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-left text-gray-500">
-                      <th className="px-6 py-4 font-medium">Reference</th>
-                      <th className="px-6 py-4 font-medium">Client</th>
-                      <th className="px-6 py-4 font-medium">Service</th>
-                      <th className="px-6 py-4 font-medium">Montant</th>
-                      <th className="px-6 py-4 font-medium">Statut</th>
-                      <th className="px-6 py-4 font-medium">USSD</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(data.commandes || []).length === 0 ? (
-                      <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">Aucune commande</td></tr>
-                    ) : data.commandes.map(c => {
-                      const ussd = c.tachesUssd?.[0]?.statutExecution || '-';
-                      const ussdBadge = ussd === 'reussi' || ussd === 'execute' ? 'bg-green-50 text-green-700'
-                        : ussd === 'echoue' || ussd === 'timeout' ? 'bg-red-50 text-red-700'
-                        : ussd === 'en_cours' ? 'bg-blue-50 text-blue-700'
-                        : ussd === 'en_attente' ? 'bg-yellow-50 text-yellow-700'
-                        : 'bg-gray-100 text-gray-500';
-                      const cmdBadge = c.statutCommande === 'execute' ? 'bg-green-50 text-green-700'
-                        : c.statutCommande === 'echoue' ? 'bg-red-50 text-red-700'
-                        : c.statutCommande === 'paiement_valide' ? 'bg-blue-50 text-blue-700'
-                        : c.statutCommande === 'en_attente_paiement' ? 'bg-yellow-50 text-yellow-700'
-                        : 'bg-gray-100 text-gray-500';
-                      return (
-                        <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4 font-mono text-xs text-gray-600">{c.referenceUnique}</td>
-                          <td className="px-6 py-4 text-gray-900">{c.user?.telephone || '-'}</td>
-                          <td className="px-6 py-4 text-gray-900">{c.service?.nom || '-'}</td>
-                          <td className="px-6 py-4 font-semibold text-gray-900">{Number(c.montant).toLocaleString()} F</td>
-                          <td className="px-6 py-4">
-                            <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${cmdBadge}`}>{c.statutCommande}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${ussdBadge}`}>{ussd}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 text-left text-gray-500">
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Reference</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Client</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Service</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Montant</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">USSD</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data.commandes || []).length === 0 ? (
+                        <tr><td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucune commande</td></tr>
+                      ) : data.commandes.map(c => {
+                        const ussd = c.tachesUssd?.[0]?.statutExecution || '-';
+                        const ussdBadge = ussd === 'reussi' || ussd === 'execute' ? 'bg-green-50 text-green-700'
+                          : ussd === 'echoue' || ussd === 'timeout' ? 'bg-red-50 text-red-700'
+                          : ussd === 'en_cours' ? 'bg-blue-50 text-blue-700'
+                          : ussd === 'en_attente' ? 'bg-yellow-50 text-yellow-700'
+                          : 'bg-gray-100 text-gray-500';
+                        const cmdBadge = c.statutCommande === 'execute' ? 'bg-green-50 text-green-700'
+                          : c.statutCommande === 'echoue' ? 'bg-red-50 text-red-700'
+                          : c.statutCommande === 'paiement_valide' ? 'bg-blue-50 text-blue-700'
+                          : c.statutCommande === 'en_attente_paiement' ? 'bg-yellow-50 text-yellow-700'
+                          : 'bg-gray-100 text-gray-500';
+                        return (
+                          <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
+                            <td className="px-4 sm:px-6 py-4 font-mono text-xs text-gray-600 break-all sm:break-normal">{c.referenceUnique}</td>
+                            <td className="px-4 sm:px-6 py-4 text-gray-900 text-xs sm:text-sm">{c.user?.telephone || '-'}</td>
+                            <td className="px-4 sm:px-6 py-4 text-gray-900 text-xs sm:text-sm">{c.service?.nom || '-'}</td>
+                            <td className="px-4 sm:px-6 py-4 font-semibold text-gray-900 text-xs sm:text-sm">{Number(c.montant).toLocaleString()} F</td>
+                            <td className="px-4 sm:px-6 py-4">
+                              <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${cmdBadge}`}>{c.statutCommande}</span>
+                            </td>
+                            <td className="px-4 sm:px-6 py-4">
+                              <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${ussdBadge}`}>{ussd}</span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -467,11 +469,11 @@ export default function App() {
           {tab === 'execution' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Execution USSD</h1>
-                <p className="text-gray-500 text-sm mt-1">Envoyer un code USSD a executer sur un telephone</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Execution USSD</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Envoyer un code USSD a executer sur un telephone</p>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 max-w-lg">
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 max-w-lg">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Operateur</label>
@@ -540,7 +542,7 @@ export default function App() {
               </div>
 
               {execResult && (
-                <div className={`bg-white rounded-2xl border p-6 ${execResult.success ? 'border-green-100' : 'border-red-100'}`}>
+                <div className={`bg-white rounded-2xl border p-4 sm:p-6 break-words ${execResult.success ? 'border-green-100' : 'border-red-100'}`}>
                   <p className={`font-medium ${execResult.success ? 'text-green-700' : 'text-red-700'}`}>{execResult.message}</p>
                   {execResult.commande && (
                     <div className="mt-3 text-sm text-gray-600 space-y-1">
@@ -558,11 +560,11 @@ export default function App() {
           {tab === 'testussd' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Test USSD</h1>
-                <p className="text-gray-500 text-sm mt-1">Envoyer n'importe quel code USSD a un telephone</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Test USSD</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Envoyer n'importe quel code USSD a un telephone</p>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 max-w-lg">
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 max-w-lg">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Operateur (optionnel)</label>
@@ -600,7 +602,7 @@ export default function App() {
               </div>
 
               {testResult && (
-                <div className={`bg-white rounded-2xl border p-6 ${testResult.success ? 'border-green-100' : 'border-red-100'}`}>
+                <div className={`bg-white rounded-2xl border p-4 sm:p-6 break-words ${testResult.success ? 'border-green-100' : 'border-red-100'}`}>
                   <p className={`font-medium ${testResult.success ? 'text-green-700' : 'text-red-700'}`}>{testResult.message}</p>
                   {testResult.telephone && (
                     <div className="mt-3 text-sm text-gray-600 space-y-1">
@@ -618,82 +620,84 @@ export default function App() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Telephones executeurs</h1>
-                  <p className="text-gray-500 text-sm mt-1">Appareils connectes pour l'execution USSD</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Telephones executeurs</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Appareils connectes pour l'execution USSD</p>
                 </div>
                 <button onClick={() => { setPhoneForm({ code: '', telephone: '' }); setModal('phone'); }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
+                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
                   <Plus className="w-4 h-4" /> Ajouter un telephone
                 </button>
               </div>
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-left text-gray-500">
-                      <th className="px-6 py-4 font-medium">Code</th>
-                      <th className="px-6 py-4 font-medium">Numero</th>
-                      <th className="px-6 py-4 font-medium">Operateur</th>
-                      <th className="px-6 py-4 font-medium">Token</th>
-                      <th className="px-6 py-4 font-medium">Statut</th>
-                      <th className="px-6 py-4 font-medium">Batterie</th>
-                      <th className="px-6 py-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.telephones.length === 0 ? (
-                      <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">Aucun telephone</td></tr>
-                    ) : data.telephones.map(p => (
-                      <tr key={p.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <Smartphone className="w-5 h-5 text-gray-400" />
-                            <span className="font-medium text-gray-900">{p.nomAppareil}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 font-mono text-sm text-gray-600">{p.numeroTelephone}</td>
-                        <td className="px-6 py-4 text-gray-600">{p.operateur?.nom || '-'}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <code className="text-xs bg-gray-100 px-2 py-1 rounded-lg text-gray-600 font-mono max-w-[120px] truncate block">{p.tokenAuth}</code>
-                            <button onClick={() => { navigator.clipboard?.writeText(p.tokenAuth); }}
-                              className="text-gray-400 hover:text-[#7C5CFC] transition-colors">
-                              <Copy className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-                            p.statut === 'en_ligne' ? 'bg-green-50 text-green-700' : p.statut === 'occupe' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${p.statut === 'en_ligne' ? 'bg-green-500' : p.statut === 'occupe' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
-                            {p.statut}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <BatteryFull className={`w-4 h-4 ${(p.niveauBatterie || 0) > 50 ? 'text-green-500' : (p.niveauBatterie || 0) > 20 ? 'text-yellow-500' : 'text-red-500'}`} />
-                            <span className="text-gray-600">{p.niveauBatterie || '-'}%</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => {
-                              setPhoneForm({ code: p.nomAppareil, telephone: p.numeroTelephone, id: p.id });
-                              setModal('phone');
-                            }}
-                              className="p-2 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition-colors">
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => deleteTelephone(p.id)}
-                              className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 text-left text-gray-500">
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Code</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Numero</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Operateur</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Token</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Batterie</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.telephones.length === 0 ? (
+                        <tr><td colSpan={7} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucun telephone</td></tr>
+                      ) : data.telephones.map(p => (
+                        <tr key={p.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                              <span className="font-medium text-gray-900 text-xs sm:text-sm">{p.nomAppareil}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm text-gray-600">{p.numeroTelephone}</td>
+                          <td className="px-4 sm:px-6 py-4 text-gray-600 text-xs sm:text-sm">{p.operateur?.nom || '-'}</td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <code className="text-xs bg-gray-100 px-2 py-1 rounded-lg text-gray-600 font-mono max-w-[80px] sm:max-w-[120px] truncate block">{p.tokenAuth}</code>
+                              <button onClick={() => { navigator.clipboard?.writeText(p.tokenAuth); }}
+                                className="text-gray-400 hover:text-[#7C5CFC] transition-colors shrink-0">
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
+                              p.statut === 'en_ligne' ? 'bg-green-50 text-green-700' : p.statut === 'occupe' ? 'bg-yellow-50 text-yellow-700' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${p.statut === 'en_ligne' ? 'bg-green-500' : p.statut === 'occupe' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
+                              {p.statut}
+                            </span>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <BatteryFull className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${(p.niveauBatterie || 0) > 50 ? 'text-green-500' : (p.niveauBatterie || 0) > 20 ? 'text-yellow-500' : 'text-red-500'}`} />
+                              <span className="text-gray-600 text-xs sm:text-sm">{p.niveauBatterie || '-'}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => {
+                                setPhoneForm({ code: p.nomAppareil, telephone: p.numeroTelephone, id: p.id });
+                                setModal('phone');
+                              }}
+                                className="p-1.5 sm:p-2 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition-colors">
+                                <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </button>
+                              <button onClick={() => deleteTelephone(p.id)}
+                                className="p-1.5 sm:p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -702,68 +706,70 @@ export default function App() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Forfaits & Services</h1>
-                  <p className="text-gray-500 text-sm mt-1">Gérez les forfaits disponibles à la souscription</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Forfaits & Services</h1>
+                <p className="text-gray-500 text-xs sm:text-sm mt-1">Gérez les forfaits disponibles à la souscription</p>
                 </div>
                 <button onClick={() => { setForm({ operateur_id: '', nom: '', type_service: 'forfait_internet', code_ussd: '', sequence_ussd: [], montant_wave: '', volume_data: '', duree_validite: '', populaire: false }); setModal('new'); }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
+                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
                   <Plus className="w-4 h-4" /> Nouveau forfait
                 </button>
               </div>
 
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-left text-gray-500">
-                      <th className="px-6 py-4 font-medium">Opérateur</th>
-                      <th className="px-6 py-4 font-medium">Nom</th>
-                      <th className="px-6 py-4 font-medium">Code USSD</th>
-                      <th className="px-6 py-4 font-medium">Prix</th>
-                      <th className="px-6 py-4 font-medium">Populaire</th>
-                      <th className="px-6 py-4 font-medium">Statut</th>
-                      <th className="px-6 py-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.services.map(s => (
-                      <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <span className="text-xs font-bold text-[#7C5CFC] uppercase bg-[#7C5CFC]/5 px-2 py-1 rounded-lg">{s.operateur.nom}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="font-medium text-gray-900">{s.nom}</p>
-                            <p className="text-xs text-gray-400">{s.typeService.replace(/_/g, ' ')}</p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 font-mono text-xs text-gray-600">{s.codeUssd}</td>
-                        <td className="px-6 py-4 font-semibold text-gray-900">{Number(s.montantWave).toLocaleString()} F</td>
-                        <td className="px-6 py-4">{s.populaire ? <Star className="w-4 h-4 text-[#FFB84D] fill-[#FFB84D]" /> : '—'}</td>
-                        <td className="px-6 py-4">
-                          <button onClick={() => toggleActif(s)}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                              s.actif ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
-                            }`}>
-                            {s.actif ? <ToggleRight className="w-3.5 h-3.5" /> : <ToggleLeft className="w-3.5 h-3.5" />}
-                            {s.actif ? 'Actif' : 'Inactif'}
-                          </button>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-2">
-                            <button onClick={() => { setForm({ id: s.id, operateur_id: s.operateurId, nom: s.nom, type_service: s.typeService, code_ussd: s.codeUssd, sequence_ussd: s.sequenceUssd, montant_wave: s.montantWave, volume_data: s.volumeData || '', duree_validite: s.dureeValidite || '', actif: s.actif, populaire: s.populaire }); setModal('edit'); }}
-                              className="p-2 rounded-lg text-gray-400 hover:bg-[#7C5CFC]/5 hover:text-[#7C5CFC] transition-colors">
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => deleteService(s.id)}
-                              className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 text-left text-gray-500">
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Opérateur</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Nom</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Code USSD</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Prix</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Populaire</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.services.map(s => (
+                        <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 sm:px-6 py-4">
+                            <span className="text-xs font-bold text-[#7C5CFC] uppercase bg-[#7C5CFC]/5 px-2 py-1 rounded-lg">{s.operateur.nom}</span>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div>
+                              <p className="font-medium text-gray-900 text-xs sm:text-sm">{s.nom}</p>
+                              <p className="text-xs text-gray-400">{s.typeService.replace(/_/g, ' ')}</p>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 font-mono text-xs text-gray-600">{s.codeUssd}</td>
+                          <td className="px-4 sm:px-6 py-4 font-semibold text-gray-900 text-xs sm:text-sm">{Number(s.montantWave).toLocaleString()} F</td>
+                          <td className="px-4 sm:px-6 py-4">{s.populaire ? <Star className="w-4 h-4 text-[#FFB84D] fill-[#FFB84D]" /> : '—'}</td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <button onClick={() => toggleActif(s)}
+                              className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                s.actif ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
+                              }`}>
+                              {s.actif ? <ToggleRight className="w-3.5 h-3.5" /> : <ToggleLeft className="w-3.5 h-3.5" />}
+                              {s.actif ? 'Actif' : 'Inactif'}
+                            </button>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex gap-1 sm:gap-2">
+                              <button onClick={() => { setForm({ id: s.id, operateur_id: s.operateurId, nom: s.nom, type_service: s.typeService, code_ussd: s.codeUssd, sequence_ussd: s.sequenceUssd, montant_wave: s.montantWave, volume_data: s.volumeData || '', duree_validite: s.dureeValidite || '', actif: s.actif, populaire: s.populaire }); setModal('edit'); }}
+                                className="p-1.5 sm:p-2 rounded-lg text-gray-400 hover:bg-[#7C5CFC]/5 hover:text-[#7C5CFC] transition-colors">
+                                <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </button>
+                              <button onClick={() => deleteService(s.id)}
+                                className="p-1.5 sm:p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
