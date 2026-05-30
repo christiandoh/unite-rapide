@@ -3,7 +3,7 @@ import { Activity, Shield, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400 mt-auto">
+    <footer className="bg-[#0D0D1A]/95 border-t border-white/5 text-white/50 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -11,7 +11,7 @@ export default function Footer() {
               <Activity className="w-5 h-5 text-[#7C5CFC]" />
               <span className="font-bold text-white">USSD Automation</span>
             </div>
-            <p className="text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed text-white/50">
               Plateforme de souscription de forfaits mobile en Cote d'Ivoire. Orange, MTN et Moov.
             </p>
           </div>
@@ -29,7 +29,7 @@ export default function Footer() {
               <Shield className="w-4 h-4 text-[#7C5CFC]" />
               <span className="font-semibold text-white">Securise</span>
             </div>
-            <p className="text-sm leading-relaxed mb-3">
+            <p className="text-sm leading-relaxed text-white/50 mb-3">
               Paiements 100% securises via Wave. Vos donnees sont protegees.
             </p>
             <div className="flex items-center gap-2 text-sm">
@@ -38,7 +38,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm">
+        <div className="border-t border-white/10 mt-8 pt-6 text-center text-sm text-white/40">
           <p>USSD Automation &copy; {new Date().getFullYear()} - Cote d'Ivoire</p>
         </div>
       </div>

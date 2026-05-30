@@ -17,7 +17,7 @@ function App() {
   return (
     <BrowserRouter basename="/unite">
       <AuthProvider>
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-[#0D0D1A]">
           <Header />
           <main className="flex-1">
             <Routes>
