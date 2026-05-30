@@ -8,6 +8,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -64,6 +65,11 @@ class MainActivity : FlutterActivity() {
                     val mainHandler = Handler(Looper.getMainLooper())
                     var resolved = false
 
+                    // Acquire wake lock to prevent screen-off during USSD
+                    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    val wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "ussd:wakelock")
+                    wakeLock.acquire(timeout * 1000L + 10000L)
+
                     USSDService.callback = object : USSDService.USSDCallback {
                         private var idx = 0
                         private var responseCount = 0
@@ -71,6 +77,7 @@ class MainActivity : FlutterActivity() {
                         private val timer = Runnable {
                             if (!resolved) {
                                 resolved = true
+                                if (wakeLock.isHeld) wakeLock.release()
                                 USSDService.resetSession()
                                 USSDService.callback = null
                                 updateNotif("Timeout")
@@ -93,10 +100,11 @@ class MainActivity : FlutterActivity() {
                                 updateNotif("Étape $idx/${seq.size}: $input")
                                 mainHandler.postDelayed({
                                     USSDService.sendInput(input)
-                                }, 100)
+                                }, 500)
                                 mainHandler.postDelayed(timer, timeout * 1000L)
                             } else {
                                 resolved = true
+                                if (wakeLock.isHeld) wakeLock.release()
                                 USSDService.resetSession()
                                 USSDService.callback = null
                                 updateNotif("Réussi")
@@ -107,6 +115,7 @@ class MainActivity : FlutterActivity() {
                         override fun onUSSDError(err: String) {
                             if (resolved) return
                             resolved = true
+                            if (wakeLock.isHeld) wakeLock.release()
                             USSDService.resetSession()
                             USSDService.callback = null
                             updateNotif("Erreur: $err")

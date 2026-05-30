@@ -155,13 +155,14 @@ class USSDService : AccessibilityService() {
                 return
             }
 
-            val clicked = clickOption(root, input)
+            var inputSent = clickOption(root, input)
 
-            if (!clicked) {
+            if (!inputSent) {
                 val editText = findEditText(root)
                 if (editText != null) {
                     pasteToEditText(editText, input)
                     editText.recycle()
+                    inputSent = true
                 } else {
                     root.recycle()
                     callback?.onUSSDError("Aucun champ de saisie trouvé")
@@ -169,7 +170,7 @@ class USSDService : AccessibilityService() {
                 }
             }
 
-            if (!clicked) {
+            if (inputSent) {
                 clickSend(root)
             }
 
@@ -191,7 +192,7 @@ class USSDService : AccessibilityService() {
         if (inputStr.isEmpty()) return false
 
         for (suffix in listOf(".", ")", ":", " ", "\n")) {
-            val matches = root.findAccessibilityNodeInfosByText("$inputStr$suffix")
+            val matches = root.findAccessibilityNodeInfosByText("$inputStr$suffix") ?: emptyList()
             for (node in matches) {
                 val text = node.text?.toString()?.trim() ?: ""
                 if (text.startsWith(inputStr) && node.isClickable &&
@@ -204,7 +205,7 @@ class USSDService : AccessibilityService() {
             }
         }
 
-        val exact = root.findAccessibilityNodeInfosByText(inputStr)
+        val exact = root.findAccessibilityNodeInfosByText(inputStr) ?: emptyList()
         for (node in exact) {
             val text = node.text?.toString()?.trim() ?: ""
             if (text == inputStr && node.isClickable &&

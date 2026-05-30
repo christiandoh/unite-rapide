@@ -110,8 +110,12 @@ class TaskQueueManager extends ChangeNotifier {
       if (!success && task.retryCount < AppConstants.maxRetries) {
         task.retryCount++;
         _completedIds.remove(task.commandeId);
-        _queue.insert(0, task);
-        currentStatus = 'Nouvelle tentative (${task.retryCount}/${AppConstants.maxRetries})';
+        final delay = Duration(seconds: task.retryCount * 5);
+        Future.delayed(delay, () {
+          _queue.insert(0, task);
+          if (!_processing) _processNext();
+        });
+        currentStatus = 'Nouvelle tentative (${task.retryCount}/${AppConstants.maxRetries}) dans ${delay.inSeconds}s';
       }
     } catch (e) {
       failCount++;
@@ -128,7 +132,11 @@ class TaskQueueManager extends ChangeNotifier {
       if (task.retryCount < AppConstants.maxRetries) {
         task.retryCount++;
         _completedIds.remove(task.commandeId);
-        _queue.insert(0, task);
+        final delay = Duration(seconds: task.retryCount * 5);
+        Future.delayed(delay, () {
+          _queue.insert(0, task);
+          if (!_processing) _processNext();
+        });
       }
     }
 
