@@ -58,14 +58,14 @@ export default function Suivi() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] p-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] px-3 sm:px-4 py-6 sm:py-8">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#7C5CFC]/20">
-            <Activity className="w-7 h-7 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg shadow-[#7C5CFC]/20">
+            <Activity className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Suivi de la commande</h1>
-          <p className="text-white/50 text-sm mt-1">Ref: {commande.referenceUnique}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white px-2">Suivi de la commande</h1>
+          <p className="text-white/50 text-xs sm:text-sm mt-1">Ref: {commande.referenceUnique}</p>
         </div>
 
         <div className="relative max-w-md mx-auto">
@@ -74,23 +74,23 @@ export default function Suivi() {
             const isCurrent = index === stepIndex;
             const isPast = index < stepIndex;
             return (
-              <div key={etape.key} className="flex items-start mb-8 last:mb-0">
-                <div className="flex flex-col items-center mr-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-300 ${
+              <div key={etape.key} className="flex items-start mb-6 sm:mb-8 last:mb-0">
+                <div className="flex flex-col items-center mr-3 sm:mr-4">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 transition-all duration-300 ${
                     isActive ? 'bg-[#7C5CFC] text-white shadow-md shadow-[#7C5CFC]/30' : 'bg-white/10 text-white/40'
-                  } ${isCurrent ? 'ring-4 ring-[#7C5CFC]/30' : ''}`}>
-                    {isPast ? <CheckCircle className="w-5 h-5" /> : index + 1}
+                  } ${isCurrent ? 'ring-2 sm:ring-4 ring-[#7C5CFC]/30' : ''}`}>
+                    {isPast ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> : index + 1}
                   </div>
                   {index < ETAPES.length - 1 && (
-                    <div className={`w-0.5 h-8 mt-1 ${isActive ? 'bg-[#7C5CFC]/30' : 'bg-white/10'}`} />
+                    <div className={`w-0.5 h-6 sm:h-8 mt-1 ${isActive ? 'bg-[#7C5CFC]/30' : 'bg-white/10'}`} />
                   )}
                 </div>
-                <div className="pt-1.5">
-                  <p className={`font-medium ${isActive ? 'text-white' : 'text-white/40'}`}>{etape.label}</p>
+                <div className="pt-1 sm:pt-1.5 min-w-0">
+                  <p className={`text-sm sm:text-base font-medium truncate ${isActive ? 'text-white' : 'text-white/40'}`}>{etape.label}</p>
                   {isCurrent && !isError && !isSuccess && (
                     <div className="flex items-center gap-1.5 mt-1">
-                      <div className="w-1.5 h-1.5 bg-[#7C5CFC] rounded-full animate-pulse" />
-                      <span className="text-xs text-[#7C5CFC]">En cours</span>
+                      <div className="w-1.5 h-1.5 bg-[#7C5CFC] rounded-full animate-pulse shrink-0" />
+                      <span className="text-[10px] sm:text-xs text-[#7C5CFC]">En cours</span>
                     </div>
                   )}
                 </div>
@@ -100,33 +100,33 @@ export default function Suivi() {
         </div>
 
         {isError && (
-          <div className="mt-8 bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
-            <XCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-            <p className="text-red-400 font-semibold mb-1">Echec de la transaction</p>
-            <p className="text-red-400/70 text-sm">Contactez le support pour plus d'informations</p>
+          <div className="mt-6 sm:mt-8 bg-red-500/10 border border-red-500/20 rounded-2xl p-4 sm:p-6 text-center">
+            <XCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-400 mx-auto mb-3" />
+            <p className="text-red-400 font-semibold mb-1 text-sm sm:text-base">Echec de la transaction</p>
+            <p className="text-red-400/70 text-xs sm:text-sm">Contactez le support pour plus d'informations</p>
           </div>
         )}
 
         {isSuccess && (
-          <div className="mt-8 bg-green-500/10 border border-green-500/20 rounded-2xl p-6 text-center">
-            <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
-            <p className="text-green-400 font-semibold mb-1">Service active avec succes !</p>
-            <p className="text-green-400/70 text-sm">Votre forfait est maintenant actif</p>
+          <div className="mt-6 sm:mt-8 bg-green-500/10 border border-green-500/20 rounded-2xl p-4 sm:p-6 text-center">
+            <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 text-green-400 mx-auto mb-3" />
+            <p className="text-green-400 font-semibold mb-1 text-sm sm:text-base">Service active avec succes !</p>
+            <p className="text-green-400/70 text-xs sm:text-sm">Votre forfait est maintenant actif</p>
           </div>
         )}
 
         {isReview && (
-          <div className="mt-8 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-6 text-center">
-            <Loader className="w-8 h-8 animate-spin text-yellow-400 mx-auto mb-3" />
-            <p className="text-yellow-400 font-semibold mb-1">Paiement en cours de verification</p>
-            <p className="text-yellow-400/70 text-sm">Notre equipe verifie manuellement votre paiement. Cela peut prendre quelques minutes.</p>
+          <div className="mt-6 sm:mt-8 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 sm:p-6 text-center">
+            <Loader className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-yellow-400 mx-auto mb-3" />
+            <p className="text-yellow-400 font-semibold mb-1 text-sm sm:text-base">Paiement en cours de verification</p>
+            <p className="text-yellow-400/70 text-xs sm:text-sm">Notre equipe verifie manuellement votre paiement. Cela peut prendre quelques minutes.</p>
           </div>
         )}
 
         {stepIndex >= 0 && !isError && !isSuccess && !isReview && (
-          <div className="mt-8 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 rounded-2xl p-6 text-center">
-            <Loader className="w-8 h-8 animate-spin text-[#7C5CFC] mx-auto mb-3" />
-            <p className="text-[#A78BFF] font-medium">Traitement en cours...</p>
+          <div className="mt-6 sm:mt-8 bg-[#7C5CFC]/10 border border-[#7C5CFC]/20 rounded-2xl p-4 sm:p-6 text-center">
+            <Loader className="w-7 h-7 sm:w-8 sm:h-8 animate-spin text-[#7C5CFC] mx-auto mb-3" />
+            <p className="text-[#A78BFF] font-medium text-sm sm:text-base">Traitement en cours...</p>
           </div>
         )}
       </div>

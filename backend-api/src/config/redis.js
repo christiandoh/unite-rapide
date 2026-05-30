@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 const { logger } = require('./logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:change_me@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 let redis;
 

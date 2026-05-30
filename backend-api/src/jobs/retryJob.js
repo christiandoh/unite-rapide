@@ -3,7 +3,7 @@ const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
 const executionQueue = require('./executionJob');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:change_me@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 const retryQueue = new Queue('ussd-retry', REDIS_URL, {
   defaultJobOptions: {

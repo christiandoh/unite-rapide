@@ -2,7 +2,7 @@ const Redis = require('ioredis');
 const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme_redis_2026@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 async function startResultConsumer() {
   const sub = new Redis(REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 });

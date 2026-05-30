@@ -1,7 +1,7 @@
 const Queue = require('bull');
 const { logger } = require('../config/logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:change_me@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 const ussdQueue = new Queue('ussd-execution', REDIS_URL, {
   defaultJobOptions: {

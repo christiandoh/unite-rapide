@@ -3,7 +3,7 @@ const prisma = require('../config/prisma');
 const Redis = require('ioredis');
 const { logger } = require('../config/logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme_redis_2026@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 const redis = new Redis(REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 0 });
 
 redis.connect().catch(() => {});

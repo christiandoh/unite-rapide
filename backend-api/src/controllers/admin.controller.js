@@ -2,7 +2,7 @@ const prisma = require('../config/prisma');
 const Redis = require('ioredis');
 const { logger } = require('../config/logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme_redis_2026@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 async function telephones(req, res, next) {
   try {
@@ -191,7 +191,7 @@ async function revalider(req, res, next) {
 }
 
 async function _dispatchUSSD(task, commande) {
-  const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme_redis_2026@redis:6379';
+  const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
   const publisher = new Redis(REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 });
   await publisher.connect().catch(() => {});
 
@@ -618,7 +618,7 @@ async function testUssd(req, res, next) {
     }
 
     const Redis = require('ioredis');
-    const publisher = new Redis(process.env.REDIS_URL || 'redis://:ZwGghIwgWeZYbCZub81NjNQN@127.0.0.1:6380', {
+    const publisher = new Redis(process.env.REDIS_URL || 'process.env.REDIS_URL || 'redis://localhost:6379'', {
       lazyConnect: true, maxRetriesPerRequest: 1,
     });
     await publisher.connect().catch(() => {});

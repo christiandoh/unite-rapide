@@ -11,7 +11,7 @@ gzip "$BACKUP_DIR/db_$TIMESTAMP.sql"
 echo "  ✓ Base de données: backups/db_$TIMESTAMP.sql.gz"
 
 echo "🔄 Sauvegarde Redis..."
-docker compose exec -T redis redis-cli -a changeme_redis_2026 --rdb /tmp/dump.rdb 2>/dev/null
+docker compose exec -T redis redis-cli -a "${REDIS_PASSWORD:-changeme}" --rdb /tmp/dump.rdb 2>/dev/null
 docker compose cp redis:/tmp/dump.rdb "$BACKUP_DIR/redis_$TIMESTAMP.rdb"
 echo "  ✓ Redis: backups/redis_$TIMESTAMP.rdb"
 

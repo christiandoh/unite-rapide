@@ -9,40 +9,40 @@ export default function Header() {
 
   return (
     <header className="bg-[#0D0D1A] border-b border-white/10 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5" onClick={() => setMenuOpen(false)}>
-          <div className="w-9 h-9 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20">
-            <Activity className="w-5 h-5 text-white" />
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-1.5 sm:gap-2.5" onClick={() => setMenuOpen(false)}>
+          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20 shrink-0">
+            <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <span className="font-bold text-lg text-white">Unite Rapide</span>
+          <span className="font-bold text-sm sm:text-lg text-white">Unite Rapide</span>
         </Link>
 
-        <nav className="hidden sm:flex items-center gap-2">
+        <nav className="hidden sm:flex items-center gap-1 sm:gap-2">
           <Link to="/catalogue"
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-            <Package className="w-4 h-4" />
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>Forfaits</span>
           </Link>
           {user ? (
             <Link to="/profil"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white/70 hover:text-white rounded-xl transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-sm">
+              className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white/70 hover:text-white rounded-xl transition-colors">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] text-white rounded-xl flex items-center justify-center text-[10px] sm:text-sm font-bold shadow-sm shrink-0">
                 {user.nom?.[0] || 'U'}
               </div>
-              <span>{user.prenom || user.nom}</span>
+              <span className="hidden md:inline">{user.prenom || user.nom}</span>
             </Link>
           ) : (
             <Link to="/connexion"
-              className="flex items-center gap-1.5 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-5 py-2 rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
-              <LogIn className="w-4 h-4" />
+              className="flex items-center gap-1.5 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 whitespace-nowrap">
+              <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Connexion
             </Link>
           )}
         </nav>
 
         <button onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden p-2 text-white/70 hover:text-white transition-colors">
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          className="sm:hidden p-1.5 sm:p-2 -mr-1.5 text-white/70 hover:text-white transition-colors">
+          {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
         </button>
       </div>
 

@@ -2,7 +2,7 @@ const Queue = require('bull');
 const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:change_me@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
 const expirationQueue = new Queue('command-expiration', REDIS_URL, {
   defaultJobOptions: {

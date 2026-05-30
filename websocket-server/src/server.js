@@ -16,7 +16,7 @@ const logger = createLogger({
   ],
 });
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://:change_me@redis:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme@localhost:6379';
 const PORT = process.env.PORT || 8080;
 
 const redis = new Redis(REDIS_URL, {
@@ -169,8 +169,8 @@ function handlePhoneConnection(socket) {
     });
   });
 
-  socket.on('disconnect', () => {
-    logger.info(`📱 Téléphone déconnecté: ${socket.phoneNumber}`);
+  socket.on('disconnect', (reason) => {
+    logger.info(`📱 Téléphone déconnecté: ${socket.phoneNumber} raison: ${reason}`);
 
     phones.delete(socket.phoneId);
 
