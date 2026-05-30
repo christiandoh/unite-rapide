@@ -133,50 +133,57 @@ async function revalider(req, res, next) {
     const { id } = req.params;
     const { action, commentaire } = req.body;
 
-    const preuve = await prisma.preuvePaiement.findFirst({
-      where: { commandeId: id },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!preuve) {
-      return res.status(404).json({ error: 'Aucune preuve trouvée' });
-    }
-
-    const statutValidation = action === 'valider' ? 'valide_manuel' : 'rejete';
-
-    await prisma.preuvePaiement.update({
-      where: { id: preuve.id },
-      data: {
-        statutValidation,
-        validePar: req.user.id,
-        commentaireValidation: commentaire || null,
-      },
-    });
-
-    if (action === 'valider') {
-      const commande = await prisma.commande.update({
-        where: { id },
-        data: { statutCommande: 'paiement_valide' },
-        include: { service: { select: { codeUssd: true, sequenceUssd: true, operateur: { select: { nom: true } } } } },
+    await prisma.$transaction(async (tx) => {
+      const preuve = await tx.preuvePaiement.findFirst({
+        where: { commandeId: id },
+        orderBy: { createdAt: 'desc' },
       });
 
-      const task = await prisma.tacheUSSD.create({
+      if (!preuve) {
+        throw { status: 404, message: 'Aucune preuve trouvée' };
+      }
+
+      // Check if already validated (idempotency)
+      if (preuve.statutValidation === 'valide_manuel' || preuve.statutValidation === 'valide_ia') {
+        throw { status: 409, message: 'Cette commande a deja ete validee' };
+      }
+
+      const statutValidation = action === 'valider' ? 'valide_manuel' : 'rejete';
+
+      await tx.preuvePaiement.update({
+        where: { id: preuve.id },
         data: {
-          commandeId: id,
-          priorite: 5,
-          statutExecution: 'en_attente',
-          logsExecution: [],
-          nombreTentatives: 0,
-          tentativeMax: 3,
+          statutValidation,
+          validePar: req.user.id,
+          commentaireValidation: commentaire || null,
         },
       });
 
-      // Find available phone and dispatch directly via Redis
-      _dispatchUSSD(task, commande).catch(err =>
-        logger.error('Erreur dispatch USSD', { taskId: task.id, error: err.message }));
+      if (action === 'valider') {
+        const commande = await tx.commande.update({
+          where: { id },
+          data: { statutCommande: 'paiement_valide' },
+          include: { service: { select: { codeUssd: true, sequenceUssd: true, operateur: { select: { nom: true } } } } },
+        });
 
-      logger.info('Tache USSD creee', { taskId: task.id, commandeId: id });
-    }
+        const task = await tx.tacheUSSD.create({
+          data: {
+            commandeId: id,
+            priorite: 5,
+            statutExecution: 'en_attente',
+            logsExecution: [],
+            nombreTentatives: 0,
+            tentativeMax: 3,
+          },
+        });
+
+        // Dispatch outside transaction
+        _dispatchUSSD(task, commande).catch(err =>
+          logger.error('Erreur dispatch USSD', { taskId: task.id, error: err.message }));
+
+        logger.info('Tache USSD creee', { taskId: task.id, commandeId: id });
+      }
+    });
 
     logger.info('Revalidation manuelle effectuee', {
       commandeId: id,
@@ -186,6 +193,9 @@ async function revalider(req, res, next) {
 
     res.json({ message: `Commande ${action === 'valider' ? 'validee' : 'rejetee'} avec succes` });
   } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message, ...(error.commandeId ? { commandeId: error.commandeId } : {}) });
+    }
     next(error);
   }
 }
@@ -534,47 +544,53 @@ async function executerUssd(req, res, next) {
 
     if (!service) return res.status(404).json({ error: 'Service non trouve ou inactif' });
 
-    // Check for duplicate running command (idempotency)
-    const existante = await prisma.commande.findFirst({
-      where: {
-        telephoneBeneficiaire: telephone_beneficiaire,
-        serviceId: service_id,
-        statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'en_cours_execution'] },
-        createdAt: { gte: new Date(Date.now() - 3600000) },
-      },
-    });
-    if (existante) {
-      return res.status(409).json({ error: 'Une commande identique est deja en cours', commandeId: existante.id });
-    }
-
-    // Create command directly in "paiement_valide" status (skip payment)
     const reference = `USSD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
 
-    const commande = await prisma.commande.create({
-      data: {
-        user: { connect: { id: req.user.id } },
-        service: { connect: { id: service.id } },
-        telephoneBeneficiaire: telephone_beneficiaire,
-        referenceUnique: reference,
-        montant: service.montantWave,
-        statutCommande: 'paiement_valide',
-        lienPaiementWave: '',
-        dateExpirationPaiement: new Date(Date.now() + 900000),
-      },
+    // Atomic transaction: check + create
+    const result = await prisma.$transaction(async (tx) => {
+      // Check for duplicate (within transaction = no race)
+      const existante = await tx.commande.findFirst({
+        where: {
+          telephoneBeneficiaire,
+          serviceId: service_id,
+          statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'en_cours_execution'] },
+          createdAt: { gte: new Date(Date.now() - 3600000) },
+        },
+      });
+      if (existante) {
+        throw { status: 409, message: 'Une commande identique est deja en cours', commandeId: existante.id };
+      }
+
+      const commande = await tx.commande.create({
+        data: {
+          user: { connect: { id: req.user.id } },
+          service: { connect: { id: service.id } },
+          telephoneBeneficiaire,
+          referenceUnique: reference,
+          montant: service.montantWave,
+          statutCommande: 'paiement_valide',
+          lienPaiementWave: '',
+          dateExpirationPaiement: new Date(Date.now() + 900000),
+        },
+      });
+
+      const task = await tx.tacheUSSD.create({
+        data: {
+          commandeId: commande.id,
+          statutExecution: 'en_attente',
+          priorite: 5,
+        },
+      });
+
+      return { commande, task };
     });
 
-    // Create USSD task
-    const task = await prisma.tacheUSSD.create({
-      data: {
-        commandeId: commande.id,
-        statutExecution: 'en_attente',
-        priorite: 5,
-      },
-    });
+    const { commande, task } = result;
 
-    // Add to execution queue
+    // Add to execution queue (outside transaction - non-critical)
     const { executionQueue } = require('../jobs/executionJob');
-    await executionQueue.add({ taskId: task.id, commandeId: commande.id });
+    await executionQueue.add({ taskId: task.id, commandeId: commande.id }).catch(err =>
+      logger.error('Erreur ajout file execution', { taskId: task.id, error: err.message }));
 
     logger.info('USSD execute depuis admin', { commandeId: commande.id, service: service.nom, telephone: telephone_beneficiaire });
 
@@ -592,6 +608,9 @@ async function executerUssd(req, res, next) {
       },
     });
   } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message, ...(error.commandeId ? { commandeId: error.commandeId } : {}) });
+    }
     next(error);
   }
 }
@@ -618,7 +637,7 @@ async function testUssd(req, res, next) {
     }
 
     const Redis = require('ioredis');
-    const publisher = new Redis(process.env.REDIS_URL || 'process.env.REDIS_URL || 'redis://localhost:6379'', {
+    const publisher = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
       lazyConnect: true, maxRetriesPerRequest: 1,
     });
     await publisher.connect().catch(() => {});
