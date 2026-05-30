@@ -137,6 +137,16 @@ export default function App() {
     } catch (err) { alert(err.response?.data?.error || 'Erreur'); }
   }
 
+  async function updatePhone() {
+    try {
+      const { data } = await api.put(`/admin/telephones/${phoneForm.id}`, { code: phoneForm.code, telephone: phoneForm.telephone });
+      setData(prev => ({ ...prev, telephones: prev.telephones.map(p => p.id === phoneForm.id ? { ...p, nomAppareil: phoneForm.code, numeroTelephone: phoneForm.telephone } : p) }));
+      setModal(null);
+      setPhoneForm({ code: '', telephone: '' });
+      alert('Telephone modifie');
+    } catch (err) { alert(err.response?.data?.error || 'Erreur'); }
+  }
+
   async function deleteTelephone(id) {
     if (!window.confirm('Supprimer ce telephone ?')) return;
     try { await api.delete(`/admin/telephones/${id}`); setData(prev => ({ ...prev, telephones: prev.telephones.filter(p => p.id !== id) })); }
@@ -444,10 +454,19 @@ export default function App() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <button onClick={() => deleteTelephone(p.id)}
-                            className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => {
+                              setPhoneForm({ code: p.nomAppareil, telephone: p.numeroTelephone, id: p.id });
+                              setModal('phone');
+                            }}
+                              className="p-2 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition-colors">
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => deleteTelephone(p.id)}
+                              className="p-2 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -530,7 +549,7 @@ export default function App() {
       </main>
 
       <Modal open={modal !== null} onClose={() => setModal(null)}
-        title={modal === 'phone' ? 'Nouveau telephone' : modal === 'new' ? 'Nouveau forfait' : 'Modifier le forfait'}>
+        title={modal === 'phone' ? (phoneForm.id ? 'Modifier le telephone' : 'Nouveau telephone') : modal === 'new' ? 'Nouveau forfait' : 'Modifier le forfait'}>
         {modal === 'phone' ? (
           <div className="space-y-4">
             <div>
@@ -547,9 +566,9 @@ export default function App() {
                 placeholder="0700000000" required />
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={createPhone}
+              <button onClick={phoneForm.id ? updatePhone : createPhone}
                 className="flex-1 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white py-2.5 rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
-                Creer le telephone
+                {phoneForm.id ? 'Modifier' : 'Creer le telephone'}
               </button>
               <button onClick={() => setModal(null)}
                 className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
