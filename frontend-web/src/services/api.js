@@ -17,14 +17,27 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const { config } = error;
+    if (!config || config._retryCount === undefined) config._retryCount = 0;
+
+    // Retry on server errors (5xx) or network errors (no response)
+    const isServerError = error.response?.status >= 500;
+    const isNetworkError = !error.response && error.code !== 'ECONNABORTED';
+    if ((isServerError || isNetworkError) && config._retryCount < 3) {
+      config._retryCount++;
+      const delay = config._retryCount * 1000;
+      await new Promise(r => setTimeout(r, delay));
+      return api(config);
+    }
+
     if (error.response?.status === 401) {
       const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken && error.config.url !== '/auth/refresh-token') {
+      if (refreshToken && config.url !== '/auth/refresh-token') {
         try {
           const { data } = await axios.post('/api/auth/refresh-token', { refreshToken });
           localStorage.setItem('token', data.token);
-          error.config.headers.Authorization = `Bearer ${data.token}`;
-          return api(error.config);
+          config.headers.Authorization = `Bearer ${data.token}`;
+          return api(config);
         } catch {
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');

@@ -12,6 +12,7 @@ import Suivi from './pages/Suivi';
 import Connexion from './pages/Connexion';
 import Inscription from './pages/Inscription';
 import Profil from './pages/Profil';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/connexion" element={<Connexion />} />
               <Route path="/inscription" element={<Inscription />} />
               <Route path="/profil" element={<Profil />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
           <Footer />
