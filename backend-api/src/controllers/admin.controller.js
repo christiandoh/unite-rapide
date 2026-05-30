@@ -596,4 +596,54 @@ async function executerUssd(req, res, next) {
   }
 }
 
-module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd };
+async function testUssd(req, res, next) {
+  try {
+    const { code_ussd, operateur_nom, telephone } = req.body;
+
+    if (!code_ussd || !telephone) {
+      return res.status(400).json({ error: 'code_ussd et telephone requis' });
+    }
+
+    // Find online phone for this operator
+    const phone = await prisma.telephoneExecuteur.findFirst({
+      where: {
+        ...(operateur_nom ? { operateur: { nom: operateur_nom } } : {}),
+      },
+      include: { operateur: { select: { nom: true } } },
+      orderBy: { derniereConnexion: 'desc' },
+    });
+
+    if (!phone) {
+      return res.status(404).json({ error: 'Aucun telephone disponible pour cet operateur' });
+    }
+
+    const Redis = require('ioredis');
+    const publisher = new Redis(process.env.REDIS_URL || 'redis://:ZwGghIwgWeZYbCZub81NjNQN@127.0.0.1:6380', {
+      lazyConnect: true, maxRetriesPerRequest: 1,
+    });
+    await publisher.connect().catch(() => {});
+
+    await publisher.publish('ussd:execute', JSON.stringify({
+      taskId: `test-${Date.now()}`,
+      commandeId: `test-${Date.now()}`,
+      code: code_ussd,
+      sequence: [],
+      phoneId: phone.id,
+    }));
+
+    await publisher.disconnect().catch(() => {});
+
+    logger.info('USSD test envoye au telephone', { code: code_ussd, phone: phone.numeroTelephone, operateur: phone.operateur?.nom });
+
+    res.json({
+      message: 'Code USSD envoye au telephone',
+      telephone: phone.numeroTelephone,
+      operateur: phone.operateur?.nom,
+      code_ussd,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd, testUssd };

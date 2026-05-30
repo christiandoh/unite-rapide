@@ -22,6 +22,7 @@ router.put('/services/:id', validate('updateService'), adminController.updateSer
 router.delete('/services/:id', adminController.deleteService);
 
 router.post('/ussd/executer', adminController.executerUssd);
+router.post('/ussd/test', adminController.testUssd);
 
 router.get('/stats/historique', adminController.historique);
 
