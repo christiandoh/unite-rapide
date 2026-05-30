@@ -151,7 +151,7 @@ export default function App() {
             <LayoutDashboard className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
-          <p className="text-sm text-white/50 mt-1">USSD Automation Platform</p>
+          <p className="text-sm text-white/50 mt-1">Unite Rapide Admin</p>
         </div>
         <div className="space-y-4">
           <input type="text" placeholder="Email ou téléphone" value={loginForm.identifiant}
@@ -189,7 +189,7 @@ export default function App() {
               <Activity className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">USSD Admin</h1>
+              <h1 className="font-bold text-gray-900">Unite Rapide</h1>
               <p className="text-xs text-gray-400">Plateforme</p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function App() {
             <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-lg flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900">USSD Admin</span>
+            <span className="font-bold text-gray-900">Unite Rapide</span>
           </div>
           <div className="flex gap-1">
             {NAV.map(n => (
