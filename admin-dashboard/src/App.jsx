@@ -5,6 +5,7 @@ import {
   TrendingUp, CheckCircle, XCircle, Clock, DollarSign, Activity,
   Wifi, BatteryFull, ToggleLeft, ToggleRight, Star, Copy, Key, Eye, EyeOff,
 } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || '/api' });
@@ -130,18 +131,19 @@ export default function App() {
       setModal(null);
       const r = await api.get('/admin/services');
       setData(prev => ({ ...prev, services: r.data.services }));
-    } catch (err) { alert(err.response?.data?.error || 'Erreur'); }
+      toast.success('Forfait enregistre');
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur'); }
   }
 
   async function deleteService(id) {
     if (!window.confirm('Supprimer ce service ?')) return;
-    try { await api.delete(`/admin/services/${id}`); setData(prev => ({ ...prev, services: prev.services.filter(s => s.id !== id) })); }
-    catch (err) { alert(err.response?.data?.error || 'Impossible'); }
+    try { await api.delete(`/admin/services/${id}`); setData(prev => ({ ...prev, services: prev.services.filter(s => s.id !== id) })); toast.success('Service supprime'); }
+    catch (err) { toast.error(err.response?.data?.error || 'Impossible'); }
   }
 
   async function toggleActif(svc) {
     try { await api.put(`/admin/services/${svc.id}`, { actif: !svc.actif }); setData(prev => ({ ...prev, services: prev.services.map(s => s.id === svc.id ? { ...s, actif: !svc.actif } : s) })); }
-    catch (_) { alert('Erreur'); }
+    catch (_) { toast.error('Erreur'); }
   }
 
   async function createPhone() {
@@ -150,24 +152,24 @@ export default function App() {
       setModal(null);
       setData(prev => ({ ...prev, telephones: [...prev.telephones, data.telephone] }));
       setPhoneForm({ code: '', telephone: '' });
-      alert(`Telephone cree ! Token: ${data.telephone.tokenAuth}`);
-    } catch (err) { alert(err.response?.data?.error || 'Erreur'); }
+      toast.success('Telephone cree avec succes');
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur'); }
   }
 
   async function updatePhone() {
     try {
-      const { data } = await api.put(`/admin/telephones/${phoneForm.id}`, { code: phoneForm.code, telephone: phoneForm.telephone });
+      await api.put(`/admin/telephones/${phoneForm.id}`, { code: phoneForm.code, telephone: phoneForm.telephone });
       setData(prev => ({ ...prev, telephones: prev.telephones.map(p => p.id === phoneForm.id ? { ...p, nomAppareil: phoneForm.code, numeroTelephone: phoneForm.telephone } : p) }));
       setModal(null);
       setPhoneForm({ code: '', telephone: '' });
-      alert('Telephone modifie');
-    } catch (err) { alert(err.response?.data?.error || 'Erreur'); }
+      toast.success('Telephone modifie');
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur'); }
   }
 
   async function deleteTelephone(id) {
     if (!window.confirm('Supprimer ce telephone ?')) return;
     try { await api.delete(`/admin/telephones/${id}`); setData(prev => ({ ...prev, telephones: prev.telephones.filter(p => p.id !== id) })); }
-    catch (err) { alert(err.response?.data?.error || 'Impossible'); }
+    catch (err) { toast.error(err.response?.data?.error || 'Impossible'); }
   }
 
   async function executerUssd() {
@@ -931,6 +933,7 @@ export default function App() {
           </div>
         )}
       </Modal>
+      <Toaster position="top-right" />
     </div>
   );
 }
