@@ -15,7 +15,7 @@ import Profil from './pages/Profil';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/unite">
       <AuthProvider>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <Header />

@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
-    window.location.href = '/';
+    window.location.href = '/unite/';
   };
 
   return (
