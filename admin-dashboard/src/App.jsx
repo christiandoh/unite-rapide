@@ -362,8 +362,8 @@ export default function App() {
       )}
 
       {/* Main content */}
-      <div className="lg:pl-64">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <main className="flex-1 lg:ml-64">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {tab === 'dashboard' && (
             <div className="space-y-6">
               <div>
@@ -821,7 +821,6 @@ export default function App() {
           )}
         </div>
       </main>
-      </div>
 
       <Modal open={modal !== null} onClose={() => setModal(null)}
         title={modal === 'phone' ? (phoneForm.id ? 'Modifier le telephone' : 'Nouveau telephone') : modal === 'new' ? 'Nouveau forfait' : 'Modifier le forfait'}>
