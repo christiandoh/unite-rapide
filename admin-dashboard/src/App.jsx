@@ -263,43 +263,46 @@ export default function App() {
   const h = data.historique;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 fixed h-full z-30">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-gray-900">Unite Rapide</h1>
-              <p className="text-xs text-gray-400">Plateforme</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Desktop sidebar - fixed */}
+      <div className="hidden lg:flex lg:fixed lg:inset-y-0 lg:z-30 lg:w-64">
+        <div className="flex flex-col flex-1 bg-white border-r border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="font-bold text-gray-900">Unite Rapide</h1>
+                <p className="text-xs text-gray-400">Plateforme</p>
+              </div>
             </div>
           </div>
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {NAV.map(n => {
+              const active = tab === n.key;
+              return (
+                <button key={n.key} onClick={() => setTab(n.key)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    active ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                  }`}>
+                  <n.icon className={`w-5 h-5 ${active ? 'text-[#7C5CFC]' : ''}`} />
+                  {n.label}
+                </button>
+              );
+            })}
+          </nav>
+          <div className="p-4 border-t border-gray-100">
+            <button onClick={() => { localStorage.removeItem('admin_token'); setLoggedIn(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
+              <LogOut className="w-5 h-5" /> Déconnexion
+            </button>
+          </div>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {NAV.map(n => {
-            const active = tab === n.key;
-            return (
-              <button key={n.key} onClick={() => setTab(n.key)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  active ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
-                }`}>
-                <n.icon className={`w-5 h-5 ${active ? 'text-[#7C5CFC]' : ''}`} />
-                {n.label}
-              </button>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-gray-100">
-          <button onClick={() => { localStorage.removeItem('admin_token'); setLoggedIn(false); }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
-            <LogOut className="w-5 h-5" /> Déconnexion
-          </button>
-        </div>
-      </aside>
+      </div>
 
-      {/* Mobile header with hamburger */}
-      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
+      {/* Mobile header */}
+      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
             <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-900 p-1 -ml-1">
@@ -334,7 +337,7 @@ export default function App() {
                 </svg>
               </button>
             </div>
-            <nav className="p-4 space-y-1">
+            <nav className="p-4 space-y-1 overflow-y-auto">
               {NAV.map(n => {
                 const active = tab === n.key;
                 return (
@@ -358,8 +361,9 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 lg:ml-64">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+      {/* Main content */}
+      <div className="lg:pl-64">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {tab === 'dashboard' && (
             <div className="space-y-6">
               <div>
@@ -817,6 +821,7 @@ export default function App() {
           )}
         </div>
       </main>
+      </div>
 
       <Modal open={modal !== null} onClose={() => setModal(null)}
         title={modal === 'phone' ? (phoneForm.id ? 'Modifier le telephone' : 'Nouveau telephone') : modal === 'new' ? 'Nouveau forfait' : 'Modifier le forfait'}>
