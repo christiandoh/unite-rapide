@@ -18,6 +18,9 @@ async function bootstrap() {
     const { startResultConsumer } = require('./services/ussdResultConsumer');
     startResultConsumer().catch(err => logger.error('Erreur demarrage consumer USSD', { error: err.message }));
 
+    const { startExecutionQueue } = require('./jobs/executionJob');
+    startExecutionQueue().catch(err => logger.error('Erreur demarrage file USSD', { error: err.message }));
+
     const server = http.createServer(app);
 
     server.listen(PORT, () => {
