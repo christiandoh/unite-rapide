@@ -247,7 +247,6 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard icon={TrendingUp} label="Commandes aujourd'hui" value={d?.stats_jour?.commandes || 0} color="bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF]" />
                 <StatCard icon={CheckCircle} label="Taux de succès" value={`${d?.stats_jour?.taux_succes || 0}%`} color="bg-gradient-to-br from-[#2ED3A0] to-[#5EE0B8]" />
-                <StatCard icon={Smartphone} label="Téléphones actifs" value={d?.telephones_actifs || 0} color="bg-gradient-to-br from-[#3B82F6] to-[#60A5FA]" />
                 <StatCard icon={Clock} label="File d'attente" value={d?.file_attente || 0} color="bg-gradient-to-br from-[#FFB84D] to-[#FFD580]" />
               </div>
 

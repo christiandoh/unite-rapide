@@ -7,8 +7,7 @@ const REDIS_URL = process.env.REDIS_URL || 'redis://:changeme_redis_2026@redis:6
 
 const executionQueue = new Queue('ussd-execution', REDIS_URL, {
   defaultJobOptions: {
-    attempts: 10,
-    backoff: { type: 'exponential', delay: 15000 },
+    attempts: 1,
     removeOnComplete: true,
     removeOnFail: false,
   },
