@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   LayoutDashboard, Smartphone, Package, LogOut, Plus, Pencil, Trash2,
   TrendingUp, CheckCircle, XCircle, Clock, DollarSign, Activity,
-  Wifi, BatteryFull, ToggleLeft, ToggleRight, Star, Copy, Key,
+  Wifi, BatteryFull, ToggleLeft, ToggleRight, Star, Copy, Key, Eye, EyeOff,
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -70,6 +70,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [loginForm, setLoginForm] = useState({ identifiant: 'christiandoh29@gmail.com', mot_de_passe: '' });
   const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem('admin_token'));
+  const [showLoginPw, setShowLoginPw] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({});
   const [phoneForm, setPhoneForm] = useState({ code: '', telephone: '' });
@@ -102,13 +105,20 @@ export default function App() {
 
   async function handleLogin(e) {
     e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
     try {
       const isEmail = loginForm.identifiant.includes('@');
-      const payload = isEmail ? { email: loginForm.identifiant, mot_de_passe: loginForm.mot_de_passe } : { telephone: loginForm.identifiant, mot_de_passe: loginForm.mot_de_passe };
+      const identClean = isEmail ? loginForm.identifiant : loginForm.identifiant.replace(/^0+/, '');
+      const payload = isEmail ? { email: identClean, mot_de_passe: loginForm.mot_de_passe } : { telephone: identClean, mot_de_passe: loginForm.mot_de_passe };
       const r = await api.post('/auth/login', payload);
       localStorage.setItem('admin_token', r.data.token);
       setLoggedIn(true);
-    } catch (_) { alert('Erreur de connexion'); }
+    } catch (err) {
+      setLoginError(err.response?.data?.error || 'Identifiant ou mot de passe incorrect');
+    } finally {
+      setLoginLoading(false);
+    }
   }
 
   async function saveService() {
@@ -186,25 +196,55 @@ export default function App() {
 
   if (!loggedIn) return (
     <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-center justify-center p-4">
-      <form onSubmit={handleLogin} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10 w-full max-w-sm shadow-2xl">
+      <form onSubmit={handleLogin} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 sm:p-10 w-full max-w-sm shadow-2xl">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#7C5CFC]/30">
             <LayoutDashboard className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Admin Panel</h1>
-          <p className="text-sm text-white/50 mt-1">Unite Rapide Admin</p>
+          <h1 className="text-2xl font-bold text-white">Administrateur</h1>
+          <p className="text-sm text-white/50 mt-1">Unite Rapide</p>
         </div>
+
+        {loginError && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm text-center">{loginError}</p>
+          </div>
+        )}
+
         <div className="space-y-4">
-          <input type="text" placeholder="Email ou téléphone" value={loginForm.identifiant}
-            onChange={e => setLoginForm({ ...loginForm, identifiant: e.target.value })}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors" required />
-          <input type="password" placeholder="Mot de passe" value={loginForm.mot_de_passe}
-            onChange={e => setLoginForm({ ...loginForm, mot_de_passe: e.target.value })}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors" required />
-          <button type="submit" className="w-full bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
-            Se connecter
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Identifiant</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono z-10">+225</span>
+              <input type="text" placeholder="Email ou telephone" value={loginForm.identifiant}
+                onChange={e => { setLoginForm({ ...loginForm, identifiant: e.target.value }); setLoginError(''); }}
+                className="w-full bg-white/5 border border-white/10 rounded-xl pl-14 pr-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors text-sm" required />
+            </div>
+            <p className="text-white/30 text-xs mt-1">Email ou numero ivoirien (07, 05, 01)</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Mot de passe</label>
+            <div className="relative">
+              <input type={showLoginPw ? 'text' : 'password'} placeholder="Votre mot de passe" value={loginForm.mot_de_passe}
+                onChange={e => { setLoginForm({ ...loginForm, mot_de_passe: e.target.value }); setLoginError(''); }}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors text-sm pr-11" required />
+              <button type="button" onClick={() => setShowLoginPw(!showLoginPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
+                {showLoginPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" disabled={loginLoading}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 disabled:opacity-50">
+            {loginLoading ? 'Connexion...' : 'Se connecter'}
           </button>
         </div>
+
+        <p className="text-center text-white/30 text-xs mt-6">
+          Plateforme de souscription USSD
+        </p>
       </form>
     </div>
   );
