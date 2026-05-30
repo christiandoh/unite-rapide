@@ -82,7 +82,7 @@ export default function App() {
     try {
       const [dash, phone, svc, hist, cmd] = await Promise.all([
         api.get('/admin/dashboard'), api.get('/admin/telephones'),
-        api.get('/admin/services'), api.get('/stats/historique').catch(() => null),
+        api.get('/admin/services'), api.get('/admin/stats/historique').catch(() => null),
         api.get('/admin/commandes'),
       ]);
       const ops = [];
