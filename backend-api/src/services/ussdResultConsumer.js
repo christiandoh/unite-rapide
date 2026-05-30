@@ -17,6 +17,15 @@ async function startResultConsumer() {
       try {
         const { commandeId, phoneId, success, message: msg } = JSON.parse(message);
 
+        // Idempotence: ignorer si deja traite
+        const commande = await prisma.commande.findUnique({
+          where: { id: commandeId },
+          select: { statutCommande: true },
+        });
+        if (!commande || commande.statutCommande === 'execute' || commande.statutCommande === 'echoue') {
+          return;
+        }
+
         const taskStatus = success ? 'reussi' : 'echoue';
         const cmdStatus = success ? 'execute' : 'echoue';
 
