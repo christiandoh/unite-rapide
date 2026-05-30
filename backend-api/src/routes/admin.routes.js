@@ -21,6 +21,8 @@ router.post('/services', validate('createService'), adminController.createServic
 router.put('/services/:id', validate('updateService'), adminController.updateService);
 router.delete('/services/:id', adminController.deleteService);
 
+router.post('/ussd/executer', adminController.executerUssd);
+
 router.get('/stats/historique', adminController.historique);
 
 module.exports = router;

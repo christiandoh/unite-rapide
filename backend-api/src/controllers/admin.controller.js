@@ -519,4 +519,81 @@ async function deleteTelephone(req, res, next) {
   }
 }
 
-module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone };
+async function executerUssd(req, res, next) {
+  try {
+    const { service_id, telephone_beneficiaire } = req.body;
+
+    if (!service_id || !telephone_beneficiaire) {
+      return res.status(400).json({ error: 'service_id et telephone_beneficiaire requis' });
+    }
+
+    const service = await prisma.serviceCatalogue.findUnique({
+      where: { id: service_id, actif: true },
+      include: { operateur: { select: { nom: true } } },
+    });
+
+    if (!service) return res.status(404).json({ error: 'Service non trouve ou inactif' });
+
+    // Check for duplicate running command (idempotency)
+    const existante = await prisma.commande.findFirst({
+      where: {
+        telephoneBeneficiaire: telephone_beneficiaire,
+        serviceId: service_id,
+        statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'paiement_valide', 'en_cours_execution'] },
+        createdAt: { gte: new Date(Date.now() - 3600000) },
+      },
+    });
+    if (existante) {
+      return res.status(409).json({ error: 'Une commande identique est deja en cours', commandeId: existante.id });
+    }
+
+    // Create command directly in "paiement_valide" status (skip payment)
+    const reference = `USSD-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
+
+    const commande = await prisma.commande.create({
+      data: {
+        user: { connect: { id: req.user.id } },
+        service: { connect: { id: service.id } },
+        telephoneBeneficiaire: telephone_beneficiaire,
+        referenceUnique: reference,
+        montant: service.montantWave,
+        statutCommande: 'paiement_valide',
+        lienPaiementWave: '',
+        dateExpirationPaiement: new Date(Date.now() + 900000),
+      },
+    });
+
+    // Create USSD task
+    const task = await prisma.tacheUSSD.create({
+      data: {
+        commandeId: commande.id,
+        statutExecution: 'en_attente',
+        priorite: 5,
+      },
+    });
+
+    // Add to execution queue
+    const { executionQueue } = require('../jobs/executionJob');
+    await executionQueue.add({ taskId: task.id, commandeId: commande.id });
+
+    logger.info('USSD execute depuis admin', { commandeId: commande.id, service: service.nom, telephone: telephone_beneficiaire });
+
+    res.status(201).json({
+      message: 'Commande USSD creee et mise en file',
+      commande: {
+        id: commande.id,
+        reference,
+        service: service.nom,
+        operateur: service.operateur.nom,
+        telephone: telephone_beneficiaire,
+        code_ussd: service.codeUssd,
+        sequence: service.sequenceUssd,
+        montant: service.montantWave,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd };
