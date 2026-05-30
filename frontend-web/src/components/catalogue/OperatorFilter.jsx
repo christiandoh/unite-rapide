@@ -2,9 +2,9 @@ import React from 'react';
 import { Smartphone } from 'lucide-react';
 
 const LOGOS = {
-  'Orange': '/logo_orange.jpg',
-  'MTN': '/Mtn_ci_.jpg',
-  'Moov': '/moov_ci_logo.jpg',
+  'Orange': '/unite/logo_orange.jpg',
+  'MTN': '/unite/Mtn_ci_.jpg',
+  'Moov': '/unite/moov_ci_logo.jpg',
 };
 
 const OPERATOR_STYLES = {
