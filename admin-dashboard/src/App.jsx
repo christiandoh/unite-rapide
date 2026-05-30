@@ -66,6 +66,7 @@ function Modal({ open, onClose, title, children }) {
 
 export default function App() {
   const [tab, setTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [data, setData] = useState({ dashboard: null, telephones: [], services: [], historique: null, operateurs: [] });
   const [loading, setLoading] = useState(true);
   const [loginForm, setLoginForm] = useState({ identifiant: 'christiandoh29@gmail.com', mot_de_passe: '' });
@@ -297,24 +298,65 @@ export default function App() {
         </div>
       </aside>
 
-      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-20">
+      {/* Mobile header with hamburger */}
+      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
+            <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-900 p-1 -ml-1">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-lg flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900">Unite Rapide</span>
+            <span className="font-bold text-gray-900 text-sm">Unite Rapide</span>
           </div>
-          <div className="flex gap-1 overflow-x-auto flex-nowrap">
-            {NAV.map(n => (
-              <button key={n.key} onClick={() => setTab(n.key)}
-                className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                  tab === n.key ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500'
-                }`}>{n.label}</button>
-            ))}
-          </div>
+          <span className="text-xs text-gray-400 font-medium">{NAV.find(n => n.key === tab)?.label}</span>
         </div>
       </div>
+
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 flex">
+          <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
+          <div className="relative w-64 bg-white h-full shadow-xl">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-lg flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-bold text-gray-900">Unite Rapide</span>
+              </div>
+              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <nav className="p-4 space-y-1">
+              {NAV.map(n => {
+                const active = tab === n.key;
+                return (
+                  <button key={n.key} onClick={() => { setTab(n.key); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      active ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                    }`}>
+                    <n.icon className={`w-5 h-5 ${active ? 'text-[#7C5CFC]' : ''}`} />
+                    {n.label}
+                  </button>
+                );
+              })}
+            </nav>
+            <div className="p-4 border-t border-gray-100">
+              <button onClick={() => { localStorage.removeItem('admin_token'); setLoggedIn(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
+                <LogOut className="w-5 h-5" /> Déconnexion
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 lg:ml-64">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
