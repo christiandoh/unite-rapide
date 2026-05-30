@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="ussd_executor_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Unité Rapide" width="120" height="120" />
+  <img src="frontend-web/public/favicon.svg" alt="Unité Rapide" width="120" height="120" />
   
   # Unité Rapide
   
