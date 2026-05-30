@@ -112,7 +112,7 @@ model ServiceCatalogue {
   nom                 String   @db.VarChar(255)
   description         String?  @db.Text
   typeService         String   @map("type_service") @db.VarChar(50)
-  codeUssd            String   @map("code_ussd") @db.VarChar(20)
+  codeUssd            String   @map("code_ussd") @db.VarChar(100)
   sequenceUssd        Json     @map("sequence_ussd") @db.JsonB
   montantWave         Decimal  @map("montant_wave") @db.Decimal(10, 2)
   volumeData          String?  @map("volume_data") @db.VarChar(50)

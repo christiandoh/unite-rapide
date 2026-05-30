@@ -34,7 +34,7 @@ const schemas = {
     operateur_id: Joi.string().uuid().required(),
     nom: Joi.string().trim().min(2).max(255).required(),
     type_service: Joi.string().valid('forfait_internet', 'credit_appel', 'forfait_mixte', 'abonnement').required(),
-    code_ussd: Joi.string().max(20).required(),
+    code_ussd: Joi.string().max(50).required(),
     sequence_ussd: Joi.array().items(Joi.string()).min(0).required(),
     montant_wave: Joi.number().positive().precision(2).required(),
     volume_data: Joi.string().max(50).allow(''),
@@ -45,7 +45,7 @@ const schemas = {
   updateService: Joi.object({
     nom: Joi.string().trim().min(2).max(255),
     type_service: Joi.string().valid('forfait_internet', 'credit_appel', 'forfait_mixte', 'abonnement'),
-    code_ussd: Joi.string().max(20),
+    code_ussd: Joi.string().max(50),
     sequence_ussd: Joi.array().items(Joi.string()).min(0),
     montant_wave: Joi.number().positive().precision(2),
     volume_data: Joi.string().max(50).allow(''),

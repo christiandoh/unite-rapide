@@ -80,11 +80,20 @@ executionQueue.process(async (job) => {
       await publisher.connect().catch(() => {});
     }
 
+    const codeUssd = task.commande.service.codeUssd
+      .replace(/\{numero\}/g, task.commande.telephoneBeneficiaire)
+      .replace(/\{montant\}/g, task.commande.montant.toString());
+
+    const sequence = (task.commande.service.sequenceUssd || []).map(s =>
+      s.replace(/\{numero\}/g, task.commande.telephoneBeneficiaire)
+       .replace(/\{montant\}/g, task.commande.montant.toString())
+    );
+
     await publisher.publish('ussd:execute', JSON.stringify({
       taskId,
       commandeId,
-      code: task.commande.service.codeUssd,
-      sequence: task.commande.service.sequenceUssd,
+      code: codeUssd,
+      sequence,
       phoneId: phone.id,
     }));
 
