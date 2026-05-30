@@ -37,13 +37,13 @@ router.post('/lookup', async (req, res, next) => {
 
     logger.info('Phone lookup reussi', { code, telephone });
 
-    const publicUrl = process.env.PUBLIC_URL || `http://${req.hostname}`;
+    const apiUrl = process.env.PUBLIC_URL || `http://${req.hostname}`;
 
     res.json({
       token,
       serveur: {
-        ws: `${publicUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:')}/unite/ws`,
-        api: `${publicUrl}/unite/api`,
+        ws: `ws://${req.hostname}`,
+        api: `${apiUrl}/unite/api`,
       },
     });
   } catch (error) {
