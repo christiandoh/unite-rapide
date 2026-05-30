@@ -112,9 +112,9 @@ class _SetupScreenState extends State<SetupScreen> {
                   style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                   textAlign: TextAlign.center),
                 const SizedBox(height: 40),
-                _Input(label: 'Code identifiant', ctrl: _codeCtrl, hint: 'OMCI01'),
+                _Input(label: 'Code identifiant', ctrl: _codeCtrl, hint: ''),
                 const SizedBox(height: 16),
-                _Input(label: 'Numero de telephone', ctrl: _phoneCtrl, hint: '0700000001', type: TextInputType.phone),
+                _Input(label: 'Numero de telephone', ctrl: _phoneCtrl, hint: '', type: TextInputType.phone),
                 if (_error != null) ...[
                   const SizedBox(height: 16),
                   Container(
