@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String kApiBaseUrl = 'https://sense-cookbook-quoted-wishing.trycloudflare.com/unite/api';
-const String kWsBaseUrl = 'wss://sense-cookbook-quoted-wishing.trycloudflare.com/unite/ws';
+const String kApiBaseUrl = 'http://192.168.1.7/unite/api';
+const String kWsBaseUrl = 'http://192.168.1.7';
 
 class AppConfig {
   String serverUrl;

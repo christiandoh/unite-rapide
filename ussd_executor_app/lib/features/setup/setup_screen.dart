@@ -33,7 +33,7 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      const base = 'https://sense-cookbook-quoted-wishing.trycloudflare.com';
+      const base = 'http://192.168.1.7';
       const url = '$base/unite/api/phone/lookup';
 
       final res = await http.post(
