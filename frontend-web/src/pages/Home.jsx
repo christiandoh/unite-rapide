@@ -19,7 +19,7 @@ function useInView(threshold = 0.2) {
 function AnimatedSection({ children, className, delay = 0 }) {
   const [ref, inView] = useInView();
   return (
-    <div ref={ref} className={`transition-all duration-1000 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+    <div ref={ref} className={`transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}
       style={{ transitionDelay: `${delay}ms` }}>
       <div className={className}>{children}</div>
     </div>
