@@ -15,15 +15,15 @@ const retryQueue = new Queue('ussd-retry', REDIS_URL, {
 
 retryQueue.process(async (job) => {
   if (job.data.scheduled) {
+    // Récupérer toutes les tâches échouées avec leur tentativeMax
     const failedTasks = await prisma.tacheUSSD.findMany({
-      where: {
-        statutExecution: 'echoue',
-        nombreTentatives: { lt: prisma.tacheUSSD.tentativeMax },
-      },
-      include: { commande: true },
+      where: { statutExecution: 'echoue' },
+      select: { id: true, nombreTentatives: true, tentativeMax: true },
     });
 
-    for (const task of failedTasks) {
+    const toRetry = failedTasks.filter(t => t.nombreTentatives < t.tentativeMax);
+
+    for (const task of toRetry) {
       await prisma.tacheUSSD.update({
         where: { id: task.id },
         data: {
@@ -32,8 +32,14 @@ retryQueue.process(async (job) => {
         },
       });
       logger.info('Tâche réinsérée', { taskId: task.id, tentative: task.nombreTentatives + 1 });
+
+      // Ré-ajouter à la file d'exécution
+      const { executionQueue } = require('./executionJob');
+      await executionQueue.add({ taskId: task.id }).catch(err =>
+        logger.error('Erreur ajout file execution', { taskId: task.id, error: err.message })
+      );
     }
-    logger.info(`Reprise: ${failedTasks.length} tâche(s) réinsérée(s)`);
+    logger.info(`Reprise: ${toRetry.length} tâche(s) réinsérée(s) sur ${failedTasks.length} échouée(s)`);
     return;
   }
 
@@ -57,6 +63,12 @@ retryQueue.process(async (job) => {
         nombreTentatives: { increment: 1 },
       },
     });
+
+    const { executionQueue } = require('./executionJob');
+    await executionQueue.add({ taskId }).catch(err =>
+      logger.error('Erreur ajout file execution', { taskId, error: err.message })
+    );
+
     logger.info('Tâche réinsérée', { taskId, tentative: task.nombreTentatives + 1 });
   } catch (error) {
     logger.error('Erreur reprise tâche', { taskId, error: error.message });

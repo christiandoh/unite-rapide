@@ -29,7 +29,7 @@ router.post('/lookup', async (req, res, next) => {
 
     const token = phone.tokenAuth;
 
-    await redis.set(`phone:token:${token}`, JSON.stringify({
+    await redis.setex(`phone:token:${token}`, 86400, JSON.stringify({
       id: phone.id,
       operateur: phone.operateur?.nom || 'Inconnu',
       numeroTelephone: telephone,
@@ -43,7 +43,7 @@ router.post('/lookup', async (req, res, next) => {
       token,
       serveur: {
         ws: `ws://${req.hostname}`,
-        api: `${apiUrl}/unite/api`,
+        api: `${apiUrl}/api`,
       },
     });
   } catch (error) {

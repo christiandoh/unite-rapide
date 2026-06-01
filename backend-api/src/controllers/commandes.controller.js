@@ -1,5 +1,5 @@
 const prisma = require('../config/prisma');
-const { generatePaymentLink } = require('../services/wave.service');
+const { generatePaymentLinkWithQR } = require('../services/wave.service');
 const { logger } = require('../config/logger');
 
 async function create(req, res, next) {
@@ -16,7 +16,7 @@ async function create(req, res, next) {
     }
 
     const reference = generateReference();
-    const paymentData = generatePaymentLink(service.montantWave, reference);
+    const paymentData = await generatePaymentLinkWithQR(service.montantWave, reference);
 
     const commande = await prisma.commande.create({
       data: {

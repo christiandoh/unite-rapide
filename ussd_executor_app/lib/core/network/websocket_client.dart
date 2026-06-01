@@ -24,9 +24,10 @@ class WebSocketService {
     _socket?.destroy();
 
     _socket = socket_io.io(
-      '${config.wsUrl}/phones',
+      config.wsUrl,
       socket_io.OptionBuilder()
           .setTransports(['websocket'])
+          .setPath('/ws/socket.io')
           .setAuth({'token': config.phoneToken})
           .enableAutoConnect()
           .setExtraHeaders({'User-Agent': 'ussd-executor'})

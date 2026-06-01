@@ -106,6 +106,7 @@ async function commandes(req, res, next) {
           user: { select: { id: true, nom: true, prenom: true, telephone: true } },
           service: { select: { nom: true } },
           tachesUssd: { select: { statutExecution: true, id: true }, orderBy: { createdAt: 'desc' }, take: 1 },
+          preuvesPaiement: { select: { id: true, imageOriginaleUrl: true, statutValidation: true, scoreConfiance: true }, orderBy: { createdAt: 'desc' }, take: 1 },
         },
         skip,
         take: parseInt(limit),
@@ -144,7 +145,7 @@ async function revalider(req, res, next) {
       }
 
       // Check if already validated (idempotency)
-      if (preuve.statutValidation === 'valide_manuel' || preuve.statutValidation === 'valide_ia') {
+      if (preuve.statutValidation === 'valide_manuel' || preuve.statutValidation === 'valide_auto') {
         throw { status: 409, message: 'Cette commande a deja ete validee' };
       }
 

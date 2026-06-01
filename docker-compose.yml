@@ -14,7 +14,7 @@ x-healthcheck-postgres: &hc-postgres
   start_period: 30s
 
 x-healthcheck-redis: &hc-redis
-  test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+  test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--raw", "incr", "ping"]
   interval: 10s
   timeout: 3s
   retries: 5

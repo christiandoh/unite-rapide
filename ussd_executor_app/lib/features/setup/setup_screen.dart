@@ -16,6 +16,7 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
+  final _serverCtrl = TextEditingController(text: 'http://192.168.1.38');
   final _codeCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   bool _loading = false;
@@ -33,8 +34,13 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      const base = 'http://192.168.1.38';
-      const url = '$base/unite/api/phone/lookup';
+      final serverHost = _serverCtrl.text.trim();
+      if (serverHost.isEmpty) {
+        setState(() => _error = 'Adresse du serveur requise');
+        return;
+      }
+      final base = serverHost.replaceAll(RegExp(r'/+$'), '');
+      final url = '$base/api/phone/lookup';
 
       final res = await http.post(
         Uri.parse(url),
@@ -74,6 +80,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   @override
   void dispose() {
+    _serverCtrl.dispose();
     _codeCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
@@ -111,7 +118,9 @@ class _SetupScreenState extends State<SetupScreen> {
                 Text('Entrez le code et le numero fournis par l\'administrateur',
                   style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                   textAlign: TextAlign.center),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
+                _Input(label: 'Adresse du serveur', ctrl: _serverCtrl, hint: 'http://192.168.1.38'),
+                const SizedBox(height: 16),
                 _Input(label: 'Code identifiant', ctrl: _codeCtrl, hint: ''),
                 const SizedBox(height: 16),
                 _Input(label: 'Numero de telephone', ctrl: _phoneCtrl, hint: '', type: TextInputType.phone),

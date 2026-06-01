@@ -32,8 +32,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
+const ALLOWED_ORIGINS = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : ['https://ussd-automation.com', 'http://localhost:3000'];
+
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] },
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origine non autorisée'));
+      }
+    },
+    methods: ['GET', 'POST'],
+  },
   pingTimeout: 60000,
   pingInterval: 25000,
   transports: ['websocket', 'polling'],
@@ -108,7 +121,7 @@ function handlePhoneConnection(socket) {
     status: 'en_ligne',
   });
 
-  redis.set(`phone:status:${socket.phoneId}`, JSON.stringify({
+  redis.setex(`phone:status:${socket.phoneId}`, 300, JSON.stringify({
     status: 'en_ligne',
     lastSeen: new Date().toISOString(),
   }));
@@ -127,7 +140,7 @@ function handlePhoneConnection(socket) {
     try {
       const prevData = await redis.get(`phone:status:${socket.phoneId}`);
       const prev = prevData ? JSON.parse(prevData) : {};
-      await redis.set(`phone:status:${socket.phoneId}`, JSON.stringify({
+      await redis.setex(`phone:status:${socket.phoneId}`, 300, JSON.stringify({
         ...prev,
         ...statusData,
         lastSeen: new Date().toISOString(),
@@ -174,7 +187,7 @@ function handlePhoneConnection(socket) {
 
     phones.delete(socket.phoneId);
 
-    redis.set(`phone:status:${socket.phoneId}`, JSON.stringify({
+    redis.setex(`phone:status:${socket.phoneId}`, 300, JSON.stringify({
       status: 'hors_ligne',
       lastSeen: new Date().toISOString(),
     }));
@@ -186,8 +199,27 @@ function handlePhoneConnection(socket) {
   });
 }
 
+io.of('/web').use(async (socket, next) => {
+  // Vérifier le token JWT pour les connexions web (admin)
+  const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+  if (token) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+      socket.userId = decoded.userId;
+      socket.role = decoded.role;
+    } catch {
+      // Token invalide, connexion anonyme autorisée (lecture seule)
+      socket.role = 'guest';
+    }
+  } else {
+    socket.role = 'guest';
+  }
+  next();
+});
+
 io.of('/web').on('connection', (socket) => {
-  logger.info(`🌐 Client Web connecté: ${socket.id}`);
+  logger.info(`🌐 Client Web connecté: ${socket.id} (role: ${socket.role})`);
 
   socket.on('subscribe:commande', (commandeId) => {
     socket.join(`commande:${commandeId}`);
@@ -204,6 +236,12 @@ io.of('/web').on('connection', (socket) => {
   });
 
   socket.on('ussd:send', (data) => {
+    // Seuls les utilisateurs authentifiés peuvent envoyer des USSD
+    if (socket.role === 'guest') {
+      logger.warn(`Tentative ussd:send non autorisée: ${socket.id}`);
+      socket.emit('error', { message: 'Non autorisé' });
+      return;
+    }
     const { phoneId, code, sequence, commandeId } = data;
     const phone = phones.get(phoneId);
     if (phone) {
@@ -235,6 +273,8 @@ async function bootstrap() {
         const { taskId, commandeId, code, sequence, phoneId } = parsed;
         const phone = phoneId ? phones.get(phoneId) : null;
         if (phone) {
+          // Envoyer au namespace où le téléphone est connecté (main ou /phones)
+          io.to(phone.socketId).emit('ussd:execute', { commandeId, code, sequence });
           io.of('/phones').to(phone.socketId).emit('ussd:execute', { commandeId, code, sequence });
           io.of('/web').emit('status:update', { commandeId, status: 'en_cours_execution', message: 'Code USSD envoye au telephone' });
           logger.info(`Commande USSD envoyee au telephone ${phone.number}`, { commandeId, taskId });

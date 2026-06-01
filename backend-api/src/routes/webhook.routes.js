@@ -1,10 +1,43 @@
 const { Router } = require('express');
+const crypto = require('crypto');
 const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
 
 const router = Router();
 
-router.post('/wave', async (req, res) => {
+function verifyWaveSignature(req, res, next) {
+  const secret = process.env.WAVE_WEBHOOK_SECRET;
+  if (!secret) {
+    // Pas de secret configuré → mode compatibilité (log warning)
+    logger.warn('WAVE_WEBHOOK_SECRET non configuré, vérification de signature désactivée');
+    return next();
+  }
+
+  const signature = req.headers['x-wave-signature'];
+  if (!signature) {
+    return res.status(401).json({ error: 'Signature manquante' });
+  }
+
+  const payload = JSON.stringify(req.body);
+  const computed = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+
+  try {
+    const provided = Buffer.from(signature, 'hex');
+    const expected = Buffer.from(computed, 'hex');
+    if (provided.length !== expected.length || !crypto.timingSafeEqual(provided, expected)) {
+      return res.status(401).json({ error: 'Signature invalide' });
+    }
+  } catch {
+    return res.status(401).json({ error: 'Signature invalide' });
+  }
+
+  next();
+}
+
+router.post('/wave', verifyWaveSignature, async (req, res) => {
   try {
     logger.info('Webhook Wave reçu', { body: req.body });
 
@@ -16,7 +49,10 @@ router.post('/wave', async (req, res) => {
 
     const commande = await prisma.commande.findUnique({
       where: { referenceUnique: reference },
-      include: { preuvesPaiement: { orderBy: { createdAt: 'desc' }, take: 1 } },
+      include: {
+        preuvesPaiement: { orderBy: { createdAt: 'desc' }, take: 1 },
+        service: { select: { codeUssd: true, sequenceUssd: true, operateur: { select: { nom: true } } } },
+      },
     });
 
     if (!commande) {
@@ -37,6 +73,9 @@ router.post('/wave', async (req, res) => {
             commandeId: commande.id,
             priorite: 5,
             statutExecution: 'en_attente',
+            logsExecution: [],
+            nombreTentatives: 0,
+            tentativeMax: 3,
           },
         });
 
@@ -51,12 +90,9 @@ router.post('/wave', async (req, res) => {
 
         logger.info(`Paiement validé via webhook: ${reference}`);
 
-        const redis = require('../config/redis');
-        await redis.publish('ussd:execute', JSON.stringify({
-          commandeId: commande.id,
-          taskId: tache.id,
-          code: commande.service?.codeUssd,
-        }));
+        // Utiliser la Bull queue au lieu de Redis publish direct
+        const { executionQueue } = require('../jobs/executionJob');
+        await executionQueue.add({ taskId: tache.id, commandeId: commande.id });
       } else {
         await tx.commande.update({
           where: { id: commande.id },

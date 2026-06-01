@@ -6,22 +6,28 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Début du seed...');
 
-  const hash = await bcrypt.hash('Hacker@117', 12);
+  const adminPhone = process.env.ADMIN_PHONE || '0700000000';
+  const adminEmail = process.env.ADMIN_EMAIL || null;
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+  const hash = await bcrypt.hash(adminPassword, 12);
+
+  const adminData = {
+    nom: 'Admin',
+    prenom: 'Super',
+    telephone: adminPhone,
+    motDePasseHash: hash,
+    statut: 'actif',
+    role: 'admin',
+  };
+  if (adminEmail) adminData.email = adminEmail;
 
   const admin = await prisma.user.upsert({
-    where: { telephone: '0711118582' },
-    update: { email: 'christiandoh29@gmail.com', motDePasseHash: hash },
-    create: {
-      nom: 'Admin',
-      prenom: 'Super',
-      telephone: '0711118582',
-      email: 'christiandoh29@gmail.com',
-      motDePasseHash: hash,
-      statut: 'actif',
-      role: 'admin',
-    },
+    where: { telephone: adminPhone },
+    update: adminData,
+    create: adminData,
   });
-  console.log(`✓ Admin créé: ${admin.telephone} / ${admin.email}`);
+  console.log(`✓ Admin créé: ${admin.telephone}${admin.email ? ' / ' + admin.email : ''}`);
 
   const operateurs = await Promise.all([
     prisma.operateur.upsert({

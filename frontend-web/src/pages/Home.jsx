@@ -201,7 +201,7 @@ export default function Home() {
                   <p className="text-white/50 text-sm mb-4 line-clamp-2">{s.description}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold bg-gradient-to-r from-[#2ED3A0] to-[#5EE0B8] bg-clip-text text-transparent">
-                      {Number(s.montant_wave).toLocaleString()} FCFA
+                      {Number(s.montantWave).toLocaleString()} FCFA
                     </span>
                     <span className="text-xs text-white/30 group-hover:text-[#7C5CFC] transition-colors">Voir plus →</span>
                   </div>

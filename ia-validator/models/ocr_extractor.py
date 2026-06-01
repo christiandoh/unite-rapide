@@ -49,9 +49,9 @@ class OCRExtractor:
 
     def _extract_phone(self, text: str) -> str | None:
         patterns = [
-            r'(?:\+225|00225)?\s*(0[7|5|1]\d{8})',
-            r'(?:destinataire|bénéficiaire|client|à)\s*[:\-]?\s*(?:\+225|00225)?\s*(0[7|5|1]\d{8})',
-            r'(?:\+225|00225)?\s*(0[7|5|1]\d{2}\s?\d{2}\s?\d{2}\s?\d{2})',
+            r'(?:\+225|00225)?\s*(0[751]\d{8})',
+            r'(?:destinataire|bénéficiaire|client|à)\s*[:\-]?\s*(?:\+225|00225)?\s*(0[751]\d{8})',
+            r'(?:\+225|00225)?\s*(0[751]\d{2}\s?\d{2}\s?\d{2}\s?\d{2})',
         ]
         for pat in patterns:
             match = re.search(pat, text)

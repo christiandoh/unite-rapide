@@ -5,8 +5,6 @@ const prisma = require('./config/prisma');
 const redis = require('./config/redis');
 const wsManager = require('./websocket/wsManager');
 
-const PORT = process.env.PORT || 3000;
-
 async function bootstrap() {
   try {
     await prisma.$connect();
@@ -20,6 +18,11 @@ async function bootstrap() {
 
     const { startExecutionQueue } = require('./jobs/executionJob');
     startExecutionQueue().catch(err => logger.error('Erreur demarrage file USSD', { error: err.message }));
+
+    const { startExpirationJob } = require('./jobs/expirationJob');
+    startExpirationJob().catch(err => logger.error('Erreur demarrage job expiration', { error: err.message }));
+
+    wsManager.connect();
 
     const server = http.createServer(app);
 

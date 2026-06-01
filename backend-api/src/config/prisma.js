@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const redis = require('./redis');
 const { logger } = require('./logger');
 
@@ -18,43 +18,72 @@ baseClient.$on('query', (e) => {
   }
 });
 
+// Sérialiseur qui gère Date, Decimal, BigInt
+function serialize(value) {
+  return JSON.stringify(value, (key, val) => {
+    if (typeof val === 'bigint') return val.toString();
+    if (val instanceof Date) return val.toISOString();
+    if (val && typeof val === 'object' && 's' in val && 'e' in val) {
+      // Prisma Decimal peut arriver sous forme d'objet Decimal
+      return String(val);
+    }
+    return val;
+  });
+}
+
+async function invalidateModelCache(model) {
+  let cursor = '0';
+  let deleted = 0;
+  do {
+    const [nextCursor, keys] = await redis.scan(cursor, {
+      match: `prisma:${model}:*`,
+      count: 100,
+    });
+    cursor = nextCursor;
+    if (keys.length > 0) {
+      await redis.del(keys);
+      deleted += keys.length;
+    }
+  } while (cursor !== '0');
+  if (deleted > 0) {
+    logger.debug(`Cache invalidated for model: ${model} (${deleted} keys)`);
+  }
+}
+
+const READ_OPS = ['findUnique', 'findFirst', 'findMany', 'count'];
+const WRITE_OPS = ['create', 'update', 'delete', 'upsert', 'updateMany', 'deleteMany'];
+
 const prisma = baseClient.$extends({
   query: {
     async $allOperations({ model, operation, args, query }) {
-      const cacheKey = `prisma:${model}:${operation}:${JSON.stringify(args)}`;
-      const ttl = 60;
+      const isRead = READ_OPS.includes(operation);
+      const isWrite = WRITE_OPS.includes(operation);
 
-      if (['findUnique', 'findFirst', 'findMany', 'count'].includes(operation)) {
+      if (isRead) {
+        const cacheKey = `prisma:${model}:${operation}:${serialize(args)}`;
         try {
           const cached = await redis.get(cacheKey);
           if (cached) {
             logger.debug(`Cache hit: ${cacheKey}`);
             return JSON.parse(cached);
           }
+          const result = await query(args);
+          const safeResult = JSON.parse(serialize(result));
+          await redis.setex(cacheKey, 60, serialize(safeResult));
+          return result;
         } catch (err) {
-          logger.warn('Cache read error', { error: err.message });
+          logger.warn('Cache error', { error: err.message });
+          return query(args);
         }
       }
 
       const result = await query(args);
 
-      if (['create', 'update', 'delete', 'upsert', 'updateMany', 'deleteMany'].includes(operation)) {
+      if (isWrite) {
         try {
-          const keys = await redis.keys(`prisma:${model}:*`);
-          if (keys.length > 0) {
-            await redis.del(keys);
-            logger.debug(`Cache invalidated for model: ${model} (${keys.length} keys)`);
-          }
+          await invalidateModelCache(model);
         } catch (err) {
           logger.warn('Cache invalidation error', { error: err.message });
-        }
-      }
-
-      if (['findUnique', 'findFirst', 'findMany', 'count'].includes(operation)) {
-        try {
-          await redis.setex(cacheKey, ttl, JSON.stringify(result));
-        } catch (err) {
-          logger.warn('Cache write error', { error: err.message });
         }
       }
 

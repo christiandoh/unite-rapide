@@ -71,7 +71,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [data, setData] = useState({ dashboard: null, telephones: [], services: [], historique: null, operateurs: [] });
   const [loading, setLoading] = useState(true);
-  const [loginForm, setLoginForm] = useState({ identifiant: 'christiandoh29@gmail.com', mot_de_passe: '' });
+  const [loginForm, setLoginForm] = useState({ identifiant: '', mot_de_passe: '' });
   const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem('admin_token'));
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [loginError, setLoginError] = useState('');
@@ -87,6 +87,7 @@ export default function App() {
   const [execResult, setExecResult] = useState(null);
   const [testForm, setTestForm] = useState({ operateur_nom: '', telephone: '', code_ussd: '', montant: '' });
   const [testResult, setTestResult] = useState(null);
+  const [proofImage, setProofImage] = useState(null);
 
   useEffect(() => { if (loggedIn) loadData(); }, [loggedIn]);
 
@@ -116,8 +117,7 @@ export default function App() {
     setLoginLoading(true);
     try {
       const isEmail = loginForm.identifiant.includes('@');
-      const identClean = isEmail ? loginForm.identifiant : loginForm.identifiant.replace(/^0+/, '');
-      const payload = isEmail ? { email: identClean, mot_de_passe: loginForm.mot_de_passe } : { telephone: identClean, mot_de_passe: loginForm.mot_de_passe };
+      const payload = isEmail ? { email: loginForm.identifiant, mot_de_passe: loginForm.mot_de_passe } : { telephone: loginForm.identifiant, mot_de_passe: loginForm.mot_de_passe };
       const r = await api.post('/auth/login', payload);
       localStorage.setItem('admin_token', r.data.token);
       if (r.data.user) {
@@ -172,6 +172,15 @@ export default function App() {
       setModal(null);
       setPhoneForm({ code: '', telephone: '' });
       toast.success('Telephone modifie');
+    } catch (err) { toast.error(err.response?.data?.error || 'Erreur'); }
+  }
+
+  async function revalidateCommande(id, action) {
+    try {
+      await api.post(`/admin/commandes/${id}/revalider`, { action });
+      toast.success(`Commande ${action === 'valider' ? 'validee' : 'rejetee'}`);
+      const cmd = await api.get('/admin/commandes');
+      setData(prev => ({ ...prev, commandes: cmd.data.commandes }));
     } catch (err) { toast.error(err.response?.data?.error || 'Erreur'); }
   }
 
@@ -486,24 +495,22 @@ export default function App() {
                         <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Service</th>
                         <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Montant</th>
                         <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">USSD</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Preuve</th>
+                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(data.commandes || []).length === 0 ? (
-                        <tr><td colSpan={6} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucune commande</td></tr>
+                        <tr><td colSpan={7} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucune commande</td></tr>
                       ) : data.commandes.map(c => {
+                        const preuve = c.preuvesPaiement?.[0];
                         const ussd = c.tachesUssd?.[0]?.statutExecution || '-';
-                        const ussdBadge = ussd === 'reussi' || ussd === 'execute' ? 'bg-green-50 text-green-700'
-                          : ussd === 'echoue' || ussd === 'timeout' ? 'bg-red-50 text-red-700'
-                          : ussd === 'en_cours' ? 'bg-blue-50 text-blue-700'
-                          : ussd === 'en_attente' ? 'bg-yellow-50 text-yellow-700'
-                          : 'bg-gray-100 text-gray-500';
                         const cmdBadge = c.statutCommande === 'execute' ? 'bg-green-50 text-green-700'
                           : c.statutCommande === 'echoue' ? 'bg-red-50 text-red-700'
                           : c.statutCommande === 'paiement_valide' ? 'bg-blue-50 text-blue-700'
                           : c.statutCommande === 'en_attente_paiement' ? 'bg-yellow-50 text-yellow-700'
                           : 'bg-gray-100 text-gray-500';
+                        const canReview = c.statutCommande === 'paiement_soumis' || c.statutCommande === 'a_reviser';
                         return (
                           <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
                             <td className="px-4 sm:px-6 py-4 font-mono text-xs text-gray-600 break-all sm:break-normal">{c.referenceUnique}</td>
@@ -514,7 +521,35 @@ export default function App() {
                               <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${cmdBadge}`}>{c.statutCommande}</span>
                             </td>
                             <td className="px-4 sm:px-6 py-4">
-                              <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${ussdBadge}`}>{ussd}</span>
+                              {preuve ? (
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                                    preuve.statutValidation === 'valide_auto' || preuve.statutValidation === 'valide_manuel' ? 'bg-green-50 text-green-700'
+                                    : preuve.statutValidation === 'rejete' ? 'bg-red-50 text-red-700'
+                                    : 'bg-yellow-50 text-yellow-700'
+                                  }`}>{preuve.statutValidation || 'en_attente'}</span>
+                                  <button onClick={() => setProofImage(preuve.imageOriginaleUrl)}
+                                    className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#7C5CFC] transition-colors">
+                                    <Eye className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ) : <span className="text-xs text-gray-400">-</span>}
+                            </td>
+                            <td className="px-4 sm:px-6 py-4">
+                              {canReview ? (
+                                <div className="flex items-center gap-1">
+                                  <button onClick={() => revalidateCommande(c.id, 'valider')}
+                                    className="p-1.5 rounded-lg text-green-500 hover:bg-green-50 transition-colors" title="Valider">
+                                    <CheckCircle className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => revalidateCommande(c.id, 'rejeter')}
+                                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors" title="Rejeter">
+                                    <XCircle className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-400">{ussd}</span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -525,6 +560,14 @@ export default function App() {
               </div>
             </div>
           )}
+
+          <Modal open={!!proofImage} onClose={() => setProofImage(null)} title="Preuve de paiement">
+            {proofImage && (
+              <div className="flex flex-col items-center">
+                <img src={proofImage} alt="Preuve de paiement" className="max-w-full h-auto rounded-xl shadow-md" />
+              </div>
+            )}
+          </Modal>
 
           {tab === 'execution' && (
             <div className="space-y-6">
