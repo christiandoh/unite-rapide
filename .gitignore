@@ -52,3 +52,19 @@ ussd_executor_app/android/app/build/
 # React
 frontend-web/build/
 admin-dashboard/build/
+
+# Backups - sensitive data
+backups/
+*.sql.gz
+*.rdb
+*.tar.gz
+
+# Logs
+*.log
+
+# Tunnel
+tunnel-url.txt
+
+# Environment
+.env
+.env.*
