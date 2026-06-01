@@ -9,7 +9,8 @@ const MAX_SIZE = 10 * 1024 * 1024;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(UPLOAD_DIR, 'proofs'));
+    const dir = req.uploadDir || 'proofs';
+    cb(null, path.join(UPLOAD_DIR, dir));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();

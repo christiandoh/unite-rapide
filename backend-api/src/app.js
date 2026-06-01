@@ -14,6 +14,7 @@ const commandesRoutes = require('./routes/commandes.routes');
 const paiementRoutes = require('./routes/paiement.routes');
 const adminRoutes = require('./routes/admin.routes');
 const webhookRoutes = require('./routes/webhook.routes');
+const usersRoutes = require('./routes/users.routes');
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.use('/api/commandes', commandesRoutes);
 app.use('/api/paiement', paiementRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/webhook', webhookRoutes);
+app.use('/api/users', usersRoutes);
 app.use('/api/phone', require('./routes/phone.routes'));
 
 app.use((req, res) => {
