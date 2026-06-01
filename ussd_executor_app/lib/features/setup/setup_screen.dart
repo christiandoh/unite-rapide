@@ -33,7 +33,7 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      const base = 'http://192.168.1.7';
+      const base = 'http://192.168.1.38';
       const url = '$base/unite/api/phone/lookup';
 
       final res = await http.post(

@@ -1,0 +1,16 @@
+=== Sauvegarde 20260531_030002 ===
+PostgreSQL...
+  DB OK
+Redis...
+  Redis OK
+Uploads...
+  Uploads OK
+Logs...
+  Logs OK
+
+=== Sauvegarde terminee ===
+-rw-r--r-- 1 nundo nundo  31K May 31 03:00 logs_20260531_030002.tar.gz
+-rw-r--r-- 1 nundo nundo  198 May 29 16:48 redis_20260519_015303.rdb
+-rw-r--r-- 1 nundo nundo  941 May 31 03:00 redis_20260531_030002.rdb
+-rw-r--r-- 1 nundo nundo  134 May 29 16:48 uploads_20260519_015303.tar.gz
+-rw-r--r-- 1 nundo nundo 102K May 31 03:00 uploads_20260531_030002.tar.gz
