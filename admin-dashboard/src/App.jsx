@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   LayoutDashboard, Smartphone, Package, LogOut, Plus, Pencil, Trash2,
-  TrendingUp, CheckCircle, XCircle, Clock, DollarSign, Activity,
-  Wifi, BatteryFull, ToggleLeft, ToggleRight, Star, Copy, Key, Eye, EyeOff,
+  TrendingUp, CheckCircle, XCircle, Clock, Activity, User, Radio, Play, FlaskConical,
+  BatteryFull, ToggleLeft, ToggleRight, Star, Copy, Eye, EyeOff, Bell, RefreshCw,
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import StatCard from './components/StatCard';
+import LoginPage from './components/LoginPage';
 
 const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || '/api' });
 
@@ -27,28 +29,13 @@ const TYPES_SERVICE = [
 const NAV = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { key: 'commandes', label: 'Commandes', icon: TrendingUp },
-  { key: 'telephones', label: 'Téléphones', icon: Smartphone },
-  { key: 'execution', label: 'Execution', icon: Smartphone },
-  { key: 'testussd', label: 'Test USSD', icon: Smartphone },
+  { key: 'telephones', label: 'Telephones', icon: Smartphone },
+  { key: 'execution', label: 'Execution', icon: Play },
+  { key: 'testussd', label: 'Test USSD', icon: FlaskConical },
   { key: 'services', label: 'Forfaits', icon: Package },
-  { key: 'profil', label: 'Profil', icon: Smartphone },
-  { key: 'gammu', label: 'GSM Modem', icon: Smartphone },
+  { key: 'profil', label: 'Profil', icon: User },
+  { key: 'gammu', label: 'GSM Modem', icon: Radio },
 ];
-
-function StatCard({ icon: Icon, label, value, sub, color }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-lg transition-shadow duration-300">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <span className="text-xs sm:text-sm font-medium text-gray-500">{label}</span>
-        <div className={`p-2 sm:p-2.5 rounded-xl ${color}`}>
-          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-        </div>
-      </div>
-      <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="text-sm text-gray-400 mt-1">{sub}</p>}
-    </div>
-  );
-}
 
 function Modal({ open, onClose, title, children }) {
   if (!open) return null;
@@ -240,65 +227,23 @@ export default function App() {
   }
 
   if (!loggedIn) return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-center justify-center p-4">
-      <form onSubmit={handleLogin} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 sm:p-10 w-full max-w-sm shadow-2xl">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#7C5CFC]/30">
-            <LayoutDashboard className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Administrateur</h1>
-          <p className="text-sm text-white/50 mt-1">Unite Rapide</p>
-        </div>
-
-        {loginError && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-            <p className="text-red-400 text-sm text-center">{loginError}</p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">Identifiant</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono z-10">+225</span>
-              <input type="text" placeholder="Email ou telephone" value={loginForm.identifiant}
-                onChange={e => { setLoginForm({ ...loginForm, identifiant: e.target.value }); setLoginError(''); }}
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-14 pr-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors text-sm" required />
-            </div>
-            <p className="text-white/30 text-xs mt-1">Email ou numero ivoirien (07, 05, 01)</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">Mot de passe</label>
-            <div className="relative">
-              <input type={showLoginPw ? 'text' : 'password'} placeholder="Votre mot de passe" value={loginForm.mot_de_passe}
-                onChange={e => { setLoginForm({ ...loginForm, mot_de_passe: e.target.value }); setLoginError(''); }}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors text-sm pr-11" required />
-              <button type="button" onClick={() => setShowLoginPw(!showLoginPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
-                {showLoginPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" disabled={loginLoading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 disabled:opacity-50">
-            {loginLoading ? 'Connexion...' : 'Se connecter'}
-          </button>
-        </div>
-
-        <p className="text-center text-white/30 text-xs mt-6">
-          Plateforme de souscription USSD
-        </p>
-      </form>
-    </div>
+    <LoginPage
+      loginForm={loginForm}
+      setLoginForm={setLoginForm}
+      loginError={loginError}
+      setLoginError={setLoginError}
+      loginLoading={loginLoading}
+      showLoginPw={showLoginPw}
+      setShowLoginPw={setShowLoginPw}
+      onSubmit={handleLogin}
+    />
   );
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-4 border-[#7C5CFC] border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm">Chargement...</p>
+        <div className="w-12 h-12 border-4 border-brand-purple border-t-transparent rounded-full animate-spin" />
+        <p className="text-slate-500 text-sm font-medium">Chargement du tableau de bord...</p>
       </div>
     </div>
   );
@@ -307,98 +252,105 @@ export default function App() {
   const h = data.historique;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Desktop sidebar - fixed */}
-      <div className="hidden lg:flex lg:fixed lg:inset-y-0 lg:z-30 lg:w-64">
-        <div className="flex flex-col flex-1 bg-white border-r border-gray-100">
-          <div className="p-6 border-b border-gray-100">
+    <div className="min-h-screen bg-slate-100/80">
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex lg:fixed lg:inset-y-0 lg:z-30 lg:w-[17rem]">
+        <div className="flex flex-col flex-1 bg-slate-950 text-white border-r border-white/5">
+          <div className="p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-xl flex items-center justify-center shadow-lg shadow-[#7C5CFC]/20">
+              <div className="w-11 h-11 bg-gradient-to-br from-brand-purple to-brand-purple-light rounded-2xl flex items-center justify-center shadow-lg shadow-brand-purple/30">
                 <Activity className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="font-bold text-gray-900">Unite Rapide</h1>
-                <p className="text-xs text-gray-400">Plateforme</p>
+                <h1 className="font-bold text-white">Unite Rapide</h1>
+                <p className="text-xs text-white/40">Administration</p>
               </div>
             </div>
           </div>
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
             {NAV.map(n => {
               const active = tab === n.key;
               return (
                 <button key={n.key} onClick={() => setTab(n.key)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    active ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
-                  }`}>
-                  <n.icon className={`w-5 h-5 ${active ? 'text-[#7C5CFC]' : ''}`} />
+                  className={active ? 'sidebar-link-active' : 'sidebar-link-inactive text-white/55 hover:text-white hover:bg-white/5'}>
+                  <n.icon className={`w-5 h-5 shrink-0 ${active ? 'text-brand-purple' : ''}`} />
                   {n.label}
                 </button>
               );
             })}
           </nav>
-          <div className="p-4 border-t border-gray-100">
-            <button onClick={() => { localStorage.removeItem('admin_token'); setLoggedIn(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
-              <LogOut className="w-5 h-5" /> Déconnexion
+          <div className="p-3 border-t border-white/5">
+            {adminUser && (
+              <div className="flex items-center gap-3 px-3 py-2 mb-2 rounded-xl bg-white/5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-light flex items-center justify-center text-sm font-bold shrink-0">
+                  {adminUser.nom?.[0] || 'A'}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{adminUser.nom || 'Admin'}</p>
+                  <p className="text-xs text-white/40 truncate">{adminUser.telephone || adminUser.email}</p>
+                </div>
+              </div>
+            )}
+            <button onClick={() => { localStorage.removeItem('admin_token'); localStorage.removeItem('admin_user'); setLoggedIn(false); }}
+              className="sidebar-link-inactive text-white/55 hover:text-red-400 hover:bg-red-500/10 w-full">
+              <LogOut className="w-5 h-5" /> Deconnexion
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile header */}
-      <div className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-20">
+      <div className="lg:hidden bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-20">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
-            <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-900 p-1 -ml-1">
+            <button type="button" onClick={() => setSidebarOpen(true)} className="text-slate-600 hover:text-slate-900 p-1 -ml-1">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-purple-light rounded-lg flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900 text-sm">Unite Rapide</span>
+            <span className="font-bold text-slate-900 text-sm">Unite Rapide</span>
           </div>
-          <span className="text-xs text-gray-400 font-medium">{NAV.find(n => n.key === tab)?.label}</span>
+          <span className="text-xs text-slate-400 font-semibold uppercase tracking-wide">{NAV.find(n => n.key === tab)?.label}</span>
         </div>
       </div>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
-          <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-          <div className="relative w-64 bg-white h-full shadow-xl">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+          <div className="relative w-[17rem] bg-slate-950 h-full shadow-2xl text-white">
+            <div className="p-4 border-b border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-purple-light rounded-lg flex items-center justify-center">
                   <Activity className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-bold text-gray-900">Unite Rapide</span>
+                <span className="font-bold">Unite Rapide</span>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
+              <button type="button" onClick={() => setSidebarOpen(false)} className="text-white/40 hover:text-white p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <nav className="p-4 space-y-1 overflow-y-auto">
+            <nav className="p-3 space-y-0.5 overflow-y-auto">
               {NAV.map(n => {
                 const active = tab === n.key;
                 return (
                   <button key={n.key} onClick={() => { setTab(n.key); setSidebarOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      active ? 'bg-[#7C5CFC]/10 text-[#7C5CFC]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
-                    }`}>
-                    <n.icon className={`w-5 h-5 ${active ? 'text-[#7C5CFC]' : ''}`} />
+                    className={active ? 'sidebar-link-active' : 'sidebar-link-inactive text-white/55 hover:text-white hover:bg-white/5'}>
+                    <n.icon className={`w-5 h-5 ${active ? 'text-brand-purple' : ''}`} />
                     {n.label}
                   </button>
                 );
               })}
             </nav>
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-3 border-t border-white/5">
               <button onClick={() => { localStorage.removeItem('admin_token'); setLoggedIn(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200">
-                <LogOut className="w-5 h-5" /> Déconnexion
+                className="sidebar-link-inactive text-white/55 hover:text-red-400 hover:bg-red-500/10 w-full">
+                <LogOut className="w-5 h-5" /> Deconnexion
               </button>
             </div>
           </div>
@@ -406,93 +358,149 @@ export default function App() {
       )}
 
       {/* Main content */}
-      <main className="flex-1 lg:ml-64">
+      <main className="flex-1 lg:ml-[17rem]">
+        <div className="hidden lg:flex items-center justify-between px-8 py-4 bg-white/60 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{NAV.find(n => n.key === tab)?.label}</p>
+            <p className="text-sm text-slate-600 mt-0.5">
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={loadData}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+              <RefreshCw className="w-4 h-4" />
+              Actualiser
+            </button>
+            <button type="button" className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors" aria-label="Notifications">
+              <Bell className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {tab === 'dashboard' && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Aperçu de votre plateforme USSD</p>
+              <div className="relative overflow-hidden admin-card p-6 sm:p-8 bg-gradient-to-br from-brand-purple via-violet-600 to-indigo-700 border-0 text-white shadow-lg shadow-brand-purple/20">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+                <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <p className="text-white/70 text-sm font-medium mb-1">Bonjour{adminUser?.nom ? `, ${adminUser.nom}` : ''}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold">Tableau de bord</h1>
+                    <p className="text-white/70 text-sm mt-2 max-w-lg">
+                      Vue d&apos;ensemble de vos commandes, telephones executeurs et performances du jour.
+                    </p>
+                  </div>
+                  <div className="flex gap-6 sm:gap-8">
+                    <div className="text-center sm:text-right">
+                      <p className="text-3xl font-bold">{d?.commandes_total || 0}</p>
+                      <p className="text-xs text-white/60 uppercase tracking-wide">Commandes totales</p>
+                    </div>
+                    <div className="text-center sm:text-right">
+                      <p className="text-3xl font-bold">{d?.stats_jour?.taux_succes || 0}%</p>
+                      <p className="text-xs text-white/60 uppercase tracking-wide">Succes aujourd&apos;hui</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={TrendingUp} label="Commandes aujourd'hui" value={d?.stats_jour?.commandes || 0} color="bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF]" />
-                <StatCard icon={CheckCircle} label="Taux de succès" value={`${d?.stats_jour?.taux_succes || 0}%`} color="bg-gradient-to-br from-[#2ED3A0] to-[#5EE0B8]" />
-                <StatCard icon={Smartphone} label="Téléphones actifs" value={d?.telephones_actifs || 0} color="bg-gradient-to-br from-[#3B82F6] to-[#60A5FA]" />
-                <StatCard icon={Clock} label="File d'attente" value={d?.file_attente || 0} color="bg-gradient-to-br from-[#FFB84D] to-[#FFD580]" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <StatCard icon={TrendingUp} label="Commandes aujourd'hui" value={d?.stats_jour?.commandes || 0} accent="purple" sub="Nouvelles transactions" />
+                <StatCard icon={CheckCircle} label="Taux de succes" value={`${d?.stats_jour?.taux_succes || 0}%`} accent="mint" trend={{ positive: (d?.stats_jour?.taux_succes || 0) >= 80, label: 'Performance' }} />
+                <StatCard icon={Smartphone} label="Telephones actifs" value={d?.telephones_actifs || 0} accent="blue" sub="Connectes en ligne" />
+                <StatCard icon={Clock} label="File d'attente USSD" value={d?.file_attente || 0} accent="amber" sub="Taches en attente" />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 overflow-x-auto">
-                  <h3 className="font-semibold text-gray-900 mb-4">Évolution des commandes</h3>
+                <div className="lg:col-span-2 admin-card p-6 overflow-x-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="font-bold text-slate-900">Evolution des commandes</h3>
+                      <p className="text-slate-500 text-sm">30 derniers jours</p>
+                    </div>
+                  </div>
                   {h?.quotidien ? (
-                    <ResponsiveContainer width="100%" height={280}>
-                      <LineChart data={h.quotidien}>
-                        <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={v => v.slice(5)} stroke="#E5E7EB" />
-                        <YAxis stroke="#E5E7EB" tick={{ fontSize: 11 }} />
+                    <ResponsiveContainer width="100%" height={300}>
+                      <AreaChart data={h.quotidien}>
+                        <defs>
+                          <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#7C5CFC" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#7C5CFC" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorReussi" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2ED3A0" stopOpacity={0.2} />
+                            <stop offset="95%" stopColor="#2ED3A0" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={v => v.slice(5)} stroke="#CBD5E1" />
+                        <YAxis stroke="#CBD5E1" tick={{ fontSize: 11 }} />
                         <Tooltip
-                          contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
-                          labelFormatter={v => new Date(v).toLocaleDateString('fr-FR')} />
-                        <Line type="monotone" dataKey="total" stroke="#7C5CFC" strokeWidth={2} dot={false} name="Total" />
-                        <Line type="monotone" dataKey="reussi" stroke="#2ED3A0" strokeWidth={2} dot={false} name="Réussi" />
-                      </LineChart>
+                          contentStyle={{ borderRadius: 12, border: '1px solid #E2E8F0', boxShadow: '0 8px 30px rgba(15,23,42,0.08)' }}
+                          labelFormatter={v => new Date(v).toLocaleDateString('fr-FR')}
+                        />
+                        <Area type="monotone" dataKey="total" stroke="#7C5CFC" strokeWidth={2} fill="url(#colorTotal)" name="Total" />
+                        <Area type="monotone" dataKey="reussi" stroke="#2ED3A0" strokeWidth={2} fill="url(#colorReussi)" name="Reussi" />
+                      </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="flex items-center justify-center h-[280px] text-gray-400 text-sm">Données insuffisantes</div>
+                    <div className="flex items-center justify-center h-[300px] text-slate-400 text-sm">Donnees insuffisantes</div>
                   )}
                 </div>
 
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Répartition</h3>
+                <div className="admin-card p-6">
+                  <h3 className="font-bold text-slate-900 mb-1">Repartition</h3>
+                  <p className="text-slate-500 text-sm mb-6">Resultats sur la periode</p>
                   {h?.stats ? (
                     <div className="space-y-4">
-                      <ResponsiveContainer width="100%" height={180}>
+                      <ResponsiveContainer width="100%" height={200}>
                         <PieChart>
                           <Pie data={[
-                            { name: 'Réussies', value: h.quotidien.reduce((s, d) => s + d.reussi, 0) },
-                            { name: 'Échouées', value: h.quotidien.reduce((s, d) => s + d.echoue, 0) },
+                            { name: 'Reussies', value: h.quotidien.reduce((s, d) => s + d.reussi, 0) },
+                            { name: 'Echouees', value: h.quotidien.reduce((s, d) => s + d.echoue, 0) },
                             { name: 'Autres', value: h.quotidien.reduce((s, d) => s + d.total - d.reussi - d.echoue, 0) },
-                          ]} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                          ]} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={4} dataKey="value">
                             {[0, 1, 2].map(i => <Cell key={i} fill={[COLORS[0], COLORS[2], COLORS[3]][i]} />)}
                           </Pie>
                           <Tooltip />
                         </PieChart>
                       </ResponsiveContainer>
-                      <div className="space-y-2 pt-2">
+                      <div className="space-y-3 pt-2">
                         {[
-                          { label: 'Réussies', color: COLORS[0], value: h.quotidien.reduce((s, d) => s + d.reussi, 0) },
-                          { label: 'Échouées', color: COLORS[2], value: h.quotidien.reduce((s, d) => s + d.echoue, 0) },
+                          { label: 'Reussies', color: COLORS[0], value: h.quotidien.reduce((s, d) => s + d.reussi, 0) },
+                          { label: 'Echouees', color: COLORS[2], value: h.quotidien.reduce((s, d) => s + d.echoue, 0) },
                         ].map(item => (
                           <div key={item.label} className="flex items-center justify-between text-sm">
                             <div className="flex items-center gap-2">
                               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                              <span className="text-gray-600">{item.label}</span>
+                              <span className="text-slate-600">{item.label}</span>
                             </div>
-                            <span className="font-semibold text-gray-900">{item.value}</span>
+                            <span className="font-bold text-slate-900">{item.value}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-[280px] text-gray-400 text-sm">Données insuffisantes</div>
+                    <div className="flex items-center justify-center h-[280px] text-slate-400 text-sm">Donnees insuffisantes</div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Forfaits populaires</h3>
-                  <button onClick={() => setTab('services')} className="text-xs sm:text-sm text-[#7C5CFC] font-medium hover:underline">Voir tout</button>
+              <div className="admin-card p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h3 className="font-bold text-slate-900">Forfaits populaires</h3>
+                    <p className="text-slate-500 text-sm">Services les plus actifs</p>
+                  </div>
+                  <button type="button" onClick={() => setTab('services')} className="text-sm text-brand-purple font-semibold hover:underline">Voir tout</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {data.services.filter(s => s.actif).slice(0, 6).map(s => (
-                    <div key={s.id} className="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-[#7C5CFC] uppercase bg-[#7C5CFC]/5 px-2 py-1 rounded-lg">{s.operateur.nom}</span>
-                        {s.populaire && <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFB84D] fill-[#FFB84D]" />}
+                    <div key={s.id} className="group border border-slate-100 rounded-xl p-4 hover:border-brand-purple/20 hover:shadow-card-hover transition-all duration-300">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-brand-purple uppercase bg-brand-purple/10 px-2.5 py-1 rounded-lg">{s.operateur.nom}</span>
+                        {s.populaire && <Star className="w-4 h-4 text-amber-400 fill-amber-400" />}
                       </div>
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base">{s.nom}</p>
-                      <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{Number(s.montantWave).toLocaleString()} <span className="text-xs sm:text-sm font-normal text-gray-400">F</span></p>
+                      <p className="font-semibold text-slate-900 group-hover:text-brand-purple transition-colors">{s.nom}</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-2">{Number(s.montantWave).toLocaleString('fr-FR')} <span className="text-sm font-normal text-slate-400">F</span></p>
                     </div>
                   ))}
                 </div>
