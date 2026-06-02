@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 
 function App() {
   return (
-    <BrowserRouter basename="/unite">
+    <BrowserRouter basename="/">
       <AuthProvider>
         <div className="min-h-screen flex flex-col bg-[#0D0D1A]">
           <Header />

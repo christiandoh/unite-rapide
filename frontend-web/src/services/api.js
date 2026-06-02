@@ -40,7 +40,7 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
-          window.location.href = '/unite/connexion';
+          window.location.href = '/connexion';
         }
       }
     }

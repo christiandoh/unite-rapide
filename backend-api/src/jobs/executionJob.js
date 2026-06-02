@@ -14,6 +14,7 @@ const executionQueue = new Queue('ussd-execution', REDIS_URL, {
 });
 
 const publisher = new Redis(REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 });
+const gammuService = require('../services/gammu.service');
 
 executionQueue.process(async (job) => {
   const { taskId, commandeId } = job.data;
@@ -88,6 +89,29 @@ executionQueue.process(async (job) => {
       s.replace(/\{numero\}/g, task.commande.telephoneBeneficiaire)
        .replace(/\{montant\}/g, task.commande.montant.toString())
     );
+
+    // Try Gammu first if available
+    if (gammuService.available) {
+      try {
+        const res = await gammuService.executeUSSD(codeUssd);
+        await prisma.commande.update({
+          where: { id: commandeId },
+          data: { statutCommande: res.success ? 'execute' : 'echoue' },
+        });
+        await prisma.tacheUSSD.update({
+          where: { id: taskId },
+          data: {
+            statutExecution: res.success ? 'execute' : 'echoue',
+            dateFinExecution: new Date(),
+            messageErreur: res.error || null,
+          },
+        });
+        logger.info('Tache USSD executee via Gammu', { taskId, commandeId, success: res.success });
+        return;
+      } catch (gammuErr) {
+        logger.warn('Gammu echoue, fallback vers telephone', { taskId, error: gammuErr.message });
+      }
+    }
 
     await publisher.publish('ussd:execute', JSON.stringify({
       taskId,

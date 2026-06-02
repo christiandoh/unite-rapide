@@ -4,6 +4,7 @@ const { logger } = require('./config/logger');
 const prisma = require('./config/prisma');
 const redis = require('./config/redis');
 const wsManager = require('./websocket/wsManager');
+const PORT = process.env.PORT || 3000;
 
 async function bootstrap() {
   try {

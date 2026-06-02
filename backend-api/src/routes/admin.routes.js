@@ -23,6 +23,9 @@ router.delete('/services/:id', adminController.deleteService);
 
 router.post('/ussd/executer', adminController.executerUssd);
 router.post('/ussd/test', adminController.testUssd);
+router.get('/gammu/status', adminController.gammuStatus);
+router.post('/gammu/ussd', adminController.gammuUssd);
+router.post('/gammu/sms', adminController.gammuSms);
 
 router.get('/stats/historique', adminController.historique);
 

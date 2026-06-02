@@ -45,9 +45,9 @@ function CountUp({ end, suffix = '' }) {
 }
 
 const operators = [
-  { name: 'Orange CI', logo: '/unite/logo_orange.jpg', color: 'from-orange-500 to-orange-600' },
-  { name: 'MTN CI', logo: '/unite/Mtn_ci_.jpg', color: 'from-yellow-500 to-yellow-600' },
-  { name: 'Moov', logo: '/unite/moov_ci_logo.jpg', color: 'from-red-500 to-red-600' },
+  { name: 'Orange CI', logo: '/logo_orange.jpg', color: 'from-orange-500 to-orange-600' },
+  { name: 'MTN CI', logo: '/Mtn_ci_.jpg', color: 'from-yellow-500 to-yellow-600' },
+  { name: 'Moov', logo: '/moov_ci_logo.jpg', color: 'from-red-500 to-red-600' },
 ];
 
 const stats = [

@@ -666,4 +666,40 @@ async function testUssd(req, res, next) {
   }
 }
 
-module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd, testUssd };
+async function gammuStatus(req, res, next) {
+  try {
+    const gammuService = require('../services/gammu.service');
+    const status = gammuService.getStatus();
+    res.json({ modem: gammuService.available, ...status, device: gammuService.device });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function gammuUssd(req, res, next) {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code USSD requis' });
+    const gammuService = require('../services/gammu.service');
+    if (!gammuService.available) return res.status(503).json({ error: 'Aucun modem GSM disponible' });
+    const result = await gammuService.executeUSSD(code);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function gammuSms(req, res, next) {
+  try {
+    const { telephone, message } = req.body;
+    if (!telephone || !message) return res.status(400).json({ error: 'Telephone et message requis' });
+    const gammuService = require('../services/gammu.service');
+    if (!gammuService.available) return res.status(503).json({ error: 'Aucun modem GSM disponible' });
+    const result = await gammuService.sendSMS(telephone, message);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd, testUssd, gammuStatus, gammuUssd, gammuSms };
