@@ -30,6 +30,13 @@ async function telephones(req, res, next) {
               const elapsed = Date.now() - new Date(parsed.lastSeen).getTime();
               p.statut = elapsed < 120000 ? 'en_ligne' : 'hors_ligne';
             }
+            // Map battery data from phone heartbeat
+            if (parsed.battery_level !== undefined) {
+              p.niveauBatterie = parsed.battery_level;
+            }
+            if (parsed.is_charging !== undefined) {
+              p.enCharge = parsed.is_charging;
+            }
           }
         } catch (_) {}
         return p;
@@ -552,7 +559,7 @@ async function executerUssd(req, res, next) {
       // Check for duplicate (within transaction = no race)
       const existante = await tx.commande.findFirst({
         where: {
-          telephoneBeneficiaire,
+          telephoneBeneficiaire: telephone_beneficiaire,
           serviceId: service_id,
           statutCommande: { in: ['en_attente_paiement', 'paiement_soumis', 'en_cours_execution'] },
           createdAt: { gte: new Date(Date.now() - 3600000) },
@@ -566,7 +573,7 @@ async function executerUssd(req, res, next) {
         data: {
           user: { connect: { id: req.user.id } },
           service: { connect: { id: service.id } },
-          telephoneBeneficiaire,
+          telephoneBeneficiaire: telephone_beneficiaire,
           referenceUnique: reference,
           montant: service.montantWave,
           statutCommande: 'paiement_valide',
