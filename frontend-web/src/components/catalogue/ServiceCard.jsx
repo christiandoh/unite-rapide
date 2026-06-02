@@ -1,22 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, Wifi, Calendar } from 'lucide-react';
 
 const LOGOS = {
-  'Orange': '/logo_orange.jpg',
-  'MTN': '/Mtn_ci_.jpg',
-  'Moov': '/moov_ci_logo.jpg',
+  Orange: '/logo_orange.jpg',
+  MTN: '/Mtn_ci_.jpg',
+  Moov: '/moov_ci_logo.jpg',
 };
 
 const OPERATOR_COLORS = {
-  Orange: { bg: '#FF6600', light: '#FFF5EB' },
-  MTN: { bg: '#FFCC00', light: '#FFFDEB' },
-  Moov: { bg: '#00A3E0', light: '#EBF8FF' },
+  Orange: '#FF6600',
+  MTN: '#FFCC00',
+  Moov: '#00A3E0',
 };
 
 export default function ServiceCard({ service }) {
   const navigate = useNavigate();
-  const op = OPERATOR_COLORS[service.operateur?.nom] || { bg: '#7C5CFC', light: '#F5F3FF' };
+  const opColor = OPERATOR_COLORS[service.operateur?.nom] || '#7C5CFC';
   const logo = LOGOS[service.operateur?.nom];
   const typeLabel = service.typeService === 'forfait_internet' ? 'Internet'
     : service.typeService === 'credit_appel' ? 'Credit'
@@ -24,59 +24,60 @@ export default function ServiceCard({ service }) {
     : 'Abonnement';
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-lg hover:border-gray-200 transition-all duration-300 group">
-      <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <div className="flex items-center gap-2 sm:gap-3">
+    <div className="group glass-panel rounded-2xl p-5 sm:p-6 hover:bg-white/[0.07] hover:border-brand-purple/25 hover:shadow-glow transition-all duration-300 flex flex-col h-full">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
           {logo ? (
             <img src={logo} alt={service.operateur?.nom}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain border border-gray-100" />
+              className="w-10 h-10 rounded-xl object-contain bg-white/90 p-1" />
           ) : (
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
-              style={{ backgroundColor: op.bg }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
+              style={{ backgroundColor: opColor }}>
               {service.operateur?.nom?.[0]}
             </div>
           )}
           <div>
-            <p className="text-sm sm:text-base font-medium text-gray-900 leading-tight">{service.operateur?.nom}</p>
-            <span className="text-xs text-gray-500">{typeLabel}</span>
+            <p className="font-semibold text-white text-sm">{service.operateur?.nom}</p>
+            <span className="text-xs text-white/40">{typeLabel}</span>
           </div>
         </div>
         {service.populaire && (
-          <div className="flex items-center gap-1 text-xs bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg whitespace-nowrap">
-            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-            <span className="hidden sm:inline">Populaire</span>
+          <div className="flex items-center gap-1 text-xs bg-amber-500/15 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/20">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+            Top
           </div>
         )}
       </div>
 
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">{service.nom}</h3>
+      <h3 className="text-lg font-bold text-white mb-3 group-hover:text-brand-purple-light transition-colors">{service.nom}</h3>
 
-      <div className="space-y-1 mb-3 sm:mb-5 text-xs sm:text-sm text-gray-500">
+      <div className="space-y-2 mb-5 flex-1">
         {service.volumeData && (
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-            <span className="truncate">{service.volumeData}</span>
+          <div className="flex items-center gap-2 text-sm text-white/45">
+            <Wifi className="w-3.5 h-3.5 shrink-0" />
+            <span>{service.volumeData}</span>
           </div>
         )}
         {service.dureeValidite && (
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-            <span className="truncate">Valable {service.dureeValidite}</span>
+          <div className="flex items-center gap-2 text-sm text-white/45">
+            <Calendar className="w-3.5 h-3.5 shrink-0" />
+            <span>Valable {service.dureeValidite}</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-gray-50">
+      <div className="flex items-center justify-between pt-4 border-t border-white/10">
         <div>
-          <p className="text-xl sm:text-2xl font-bold text-gray-900">
-            {Number(service.montantWave).toLocaleString('fr-FR')}{' '}
-            <span className="text-xs sm:text-sm font-normal text-gray-400">F</span>
+          <p className="text-xs text-white/35 mb-0.5">Prix</p>
+          <p className="text-xl sm:text-2xl font-bold text-brand-mint">
+            {Number(service.montantWave).toLocaleString('fr-FR')}
+            <span className="text-sm font-normal text-white/40 ml-1">F</span>
           </p>
         </div>
-        <button onClick={() => navigate(`/commande/${service.id}`)}
-          className="flex items-center gap-1 bg-[#7C5CFC]/5 text-[#7C5CFC] px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#7C5CFC] hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-[#7C5CFC]/20 whitespace-nowrap">
+        <button type="button" onClick={() => navigate(`/commande/${service.id}`)}
+          className="flex items-center gap-1.5 bg-brand-purple/15 text-brand-purple-light px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-purple hover:text-white transition-all duration-300 group-hover:shadow-glow">
           Souscrire
-          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
     </div>

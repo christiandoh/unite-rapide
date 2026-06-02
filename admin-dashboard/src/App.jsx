@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import PageHeader from './components/PageHeader';
 import StatCard from './components/StatCard';
 import LoginPage from './components/LoginPage';
 
@@ -510,25 +511,22 @@ export default function App() {
 
           {tab === 'commandes' && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Commandes</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Historique des transactions</p>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <PageHeader title="Commandes" description="Historique des transactions et validation des preuves" />
+              <div className="admin-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-gray-50 text-left text-gray-500">
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Reference</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Client</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Service</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Montant</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Preuve</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
+                      <tr className="admin-table-head">
+                        <th className="px-4 sm:px-6 py-4">Reference</th>
+                        <th className="px-4 sm:px-6 py-4">Client</th>
+                        <th className="px-4 sm:px-6 py-4">Service</th>
+                        <th className="px-4 sm:px-6 py-4">Montant</th>
+                        <th className="px-4 sm:px-6 py-4">Statut</th>
+                        <th className="px-4 sm:px-6 py-4">Preuve</th>
+                        <th className="px-4 sm:px-6 py-4">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {(data.commandes || []).length === 0 ? (
                         <tr><td colSpan={7} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucune commande</td></tr>
                       ) : data.commandes.map(c => {
@@ -541,11 +539,11 @@ export default function App() {
                           : 'bg-gray-100 text-gray-500';
                         const canReview = c.statutCommande === 'paiement_soumis' || c.statutCommande === 'a_reviser';
                         return (
-                          <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                            <td className="px-4 sm:px-6 py-4 font-mono text-xs text-gray-600 break-all sm:break-normal">{c.referenceUnique}</td>
-                            <td className="px-4 sm:px-6 py-4 text-gray-900 text-xs sm:text-sm">{c.user?.telephone || '-'}</td>
-                            <td className="px-4 sm:px-6 py-4 text-gray-900 text-xs sm:text-sm">{c.service?.nom || '-'}</td>
-                            <td className="px-4 sm:px-6 py-4 font-semibold text-gray-900 text-xs sm:text-sm">{Number(c.montant).toLocaleString()} F</td>
+                          <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 sm:px-6 py-4 font-mono text-xs text-slate-600">{c.referenceUnique}</td>
+                            <td className="px-4 sm:px-6 py-4 text-slate-800 text-sm">{c.user?.telephone || '-'}</td>
+                            <td className="px-4 sm:px-6 py-4 text-slate-800 text-sm">{c.service?.nom || '-'}</td>
+                            <td className="px-4 sm:px-6 py-4 font-semibold text-slate-900 text-sm">{Number(c.montant).toLocaleString('fr-FR')} F</td>
                             <td className="px-4 sm:px-6 py-4">
                               <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${cmdBadge}`}>{c.statutCommande}</span>
                             </td>
@@ -600,12 +598,9 @@ export default function App() {
 
           {tab === 'execution' && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Execution USSD</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Envoyer un code USSD a executer sur un telephone</p>
-              </div>
+              <PageHeader title="Execution USSD" description="Lancer un forfait sur un telephone executeur" />
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 max-w-lg">
+              <div className="admin-card p-6 max-w-lg">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Operateur</label>
@@ -691,12 +686,9 @@ export default function App() {
 
           {tab === 'testussd' && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Test USSD</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Envoyer n'importe quel code USSD a un telephone</p>
-              </div>
+              <PageHeader title="Test USSD" description="Envoyer un code USSD libre a un telephone" />
 
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 max-w-lg">
+              <div className="admin-card p-6 max-w-lg">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Operateur (optionnel)</label>
@@ -757,31 +749,31 @@ export default function App() {
 
           {tab === 'telephones' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Telephones executeurs</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Appareils connectes pour l'execution USSD</p>
-                </div>
-                <button onClick={() => { setPhoneForm({ code: '', telephone: '' }); setModal('phone'); }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
-                  <Plus className="w-4 h-4" /> Ajouter un telephone
-                </button>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <PageHeader
+                title="Telephones executeurs"
+                description="Appareils Android connectes pour l'execution USSD"
+                action={(
+                  <button type="button" onClick={() => { setPhoneForm({ code: '', telephone: '' }); setModal('phone'); }}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-purple to-brand-purple-light text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand-purple/25 transition-all">
+                    <Plus className="w-4 h-4" /> Ajouter
+                  </button>
+                )}
+              />
+              <div className="admin-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-gray-50 text-left text-gray-500">
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Code</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Numero</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Operateur</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Token</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Batterie</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
+                      <tr className="admin-table-head">
+                        <th className="px-4 sm:px-6 py-4">Code</th>
+                        <th className="px-4 sm:px-6 py-4">Numero</th>
+                        <th className="px-4 sm:px-6 py-4">Operateur</th>
+                        <th className="px-4 sm:px-6 py-4">Token</th>
+                        <th className="px-4 sm:px-6 py-4">Statut</th>
+                        <th className="px-4 sm:px-6 py-4">Batterie</th>
+                        <th className="px-4 sm:px-6 py-4">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {data.telephones.length === 0 ? (
                         <tr><td colSpan={7} className="px-4 sm:px-6 py-12 text-center text-gray-400">Aucun telephone</td></tr>
                       ) : data.telephones.map(p => (
@@ -891,11 +883,9 @@ export default function App() {
 
           {tab === 'gammu' && (
             <div className="space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">GSM Modem</h1>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">Envoyer des USSD et SMS via modem GSM</p>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 max-w-lg">
+              <PageHeader title="GSM Modem" description="Envoyer des USSD et SMS via modem GSM" />
+
+              <div className="admin-card p-6 max-w-lg">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-50">
                     <div className={`w-3 h-3 rounded-full ${gammuStatus?.modem ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -933,32 +923,32 @@ export default function App() {
 
           {tab === 'services' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Forfaits</h1>
-                  <p className="text-gray-500 text-xs sm:text-sm mt-1">Gestion des services et forfaits</p>
-                </div>
-                <button onClick={() => { setForm({ operateur_id: '', nom: '', type_service: 'forfait_internet', code_ussd: '', sequence_ussd: [], montant_wave: '', volume_data: '', duree_validite: '', populaire: false }); setModal('new'); }}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300">
-                  <Plus className="w-4 h-4" /> Nouveau forfait
-                </button>
-              </div>
+              <PageHeader
+                title="Forfaits"
+                description="Gestion du catalogue de services USSD"
+                action={(
+                  <button type="button" onClick={() => { setForm({ operateur_id: '', nom: '', type_service: 'forfait_internet', code_ussd: '', sequence_ussd: [], montant_wave: '', volume_data: '', duree_validite: '', populaire: false }); setModal('new'); }}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-purple to-brand-purple-light text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand-purple/25 transition-all">
+                    <Plus className="w-4 h-4" /> Nouveau forfait
+                  </button>
+                )}
+              />
 
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="admin-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-gray-50 text-left text-gray-500">
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Opérateur</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Nom</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Code USSD</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Prix</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Populaire</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Statut</th>
-                        <th className="px-4 sm:px-6 py-4 font-medium text-xs sm:text-sm">Actions</th>
+                      <tr className="admin-table-head">
+                        <th className="px-4 sm:px-6 py-4">Operateur</th>
+                        <th className="px-4 sm:px-6 py-4">Nom</th>
+                        <th className="px-4 sm:px-6 py-4">Code USSD</th>
+                        <th className="px-4 sm:px-6 py-4">Prix</th>
+                        <th className="px-4 sm:px-6 py-4">Populaire</th>
+                        <th className="px-4 sm:px-6 py-4">Statut</th>
+                        <th className="px-4 sm:px-6 py-4">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {data.services.map(s => (
                         <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
                           <td className="px-4 sm:px-6 py-4">
