@@ -47,28 +47,29 @@ export default function Suivi() {
   const isSuccess = commande?.statutCommande === 'execute';
   const isReview = commande?.statutCommande === 'a_reviser';
 
-  if (error) return <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-center justify-center"><div className="text-center py-20 text-red-400 font-medium">{error}</div></div>;
+  if (error) return <div className="min-h-screen bg-brand-dark flex items-center justify-center"><div className="glass-panel rounded-2xl p-8 text-red-400 font-medium">{error}</div></div>;
   if (!commande) return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-center justify-center">
+    <div className="min-h-screen bg-brand-dark flex items-center justify-center">
       <div className="text-center py-20">
-        <Loader className="w-8 h-8 animate-spin text-[#7C5CFC] mx-auto" />
+        <Loader className="w-8 h-8 animate-spin text-brand-purple mx-auto" />
         <p className="text-white/50 mt-3">Chargement...</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] px-3 sm:px-4 py-6 sm:py-8">
+    <div className="min-h-screen bg-brand-dark px-4 py-8 sm:py-10">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF] rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg shadow-[#7C5CFC]/20">
-            <Activity className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 bg-gradient-to-br from-brand-purple to-brand-purple-light rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow">
+            <Activity className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white px-2">Suivi de la commande</h1>
-          <p className="text-white/50 text-xs sm:text-sm mt-1">Ref: {commande.referenceUnique}</p>
+          <p className="section-label mb-2">Suivi en temps reel</p>
+          <h1 className="text-2xl font-bold text-white">Suivi de commande</h1>
+          <p className="text-white/45 text-sm mt-1 font-mono">{commande.referenceUnique}</p>
         </div>
 
-        <div className="relative max-w-md mx-auto">
+        <div className="glass-card mb-6">
           {ETAPES.map((etape, index) => {
             const isActive = index <= stepIndex;
             const isCurrent = index === stepIndex;

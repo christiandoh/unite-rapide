@@ -66,10 +66,10 @@ export default function Profil() {
   const photoUrl = user?.photoUrl ? `${process.env.REACT_APP_API_URL || '/api'}/../${user.photoUrl}` : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] px-3 sm:px-4 py-6 sm:py-8">
-      <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+    <div className="min-h-screen bg-brand-dark px-4 py-8 sm:py-10">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Carte profil */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
+        <div className="glass-card">
           <div className="flex items-start gap-3 sm:gap-4 mb-5 sm:mb-6">
             <div className="relative group shrink-0">
               <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-white text-xl sm:text-3xl font-bold shadow-lg shadow-[#7C5CFC]/20 overflow-hidden ${photoUrl ? '' : 'bg-gradient-to-br from-[#7C5CFC] to-[#A78BFF]'}`}>
@@ -143,10 +143,10 @@ export default function Profil() {
         </div>
 
         {/* Commandes */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
-          <div className="flex items-center gap-2 mb-4 sm:mb-6">
-            <Package className="w-4 h-4 sm:w-5 sm:h-5 text-[#7C5CFC]" />
-            <h2 className="text-base sm:text-lg font-bold text-white">Mes commandes</h2>
+        <div className="glass-card">
+          <div className="flex items-center gap-2 mb-5 sm:mb-6">
+            <Package className="w-5 h-5 text-brand-purple-light" />
+            <h2 className="text-lg font-bold text-white">Mes commandes</h2>
           </div>
           {mesCommandes.length === 0 ? (
             <div className="text-center py-6 sm:py-8">

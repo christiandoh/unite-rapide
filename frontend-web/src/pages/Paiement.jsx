@@ -62,10 +62,11 @@ export default function Paiement() {
   const seconds = timeLeft % 60;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-start justify-center px-3 sm:px-4 py-6 sm:py-8">
+    <div className="min-h-screen bg-brand-dark flex items-start justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-lg">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 md:p-8">
-          <h1 className="text-lg sm:text-xl font-bold text-white mb-5 sm:mb-6">Paiement Wave</h1>
+        <div className="glass-card">
+          <p className="section-label mb-2">Etape 2 sur 3</p>
+          <h1 className="text-xl font-bold text-white mb-6">Paiement Wave</h1>
 
           <div className="space-y-3 mb-6">
             {[
@@ -84,8 +85,8 @@ export default function Paiement() {
 
           {commande?.lienPaiementWave && (
             <a href={commande.lienPaiementWave} target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#2ED3A0] to-[#5EE0B8] text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-[#2ED3A0]/30 transition-all duration-300 mb-6">
-              Payer avec Wave <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-brand-mint to-brand-mint-light text-white px-6 py-3.5 rounded-xl font-semibold hover:shadow-glow-mint transition-all mb-6">
+              Payer avec Wave <ExternalLink className="w-4 h-4" />
             </a>
           )}
 
@@ -120,8 +121,8 @@ export default function Paiement() {
 
           {file && (
             <button onClick={handleUpload} disabled={uploading}
-              className="flex items-center justify-center gap-2 w-full mt-5 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 disabled:opacity-50">
-              {uploading ? 'Envoi en cours...' : <><CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Valider le paiement</>}
+              className="btn-primary w-full py-3.5 disabled:opacity-50">
+              {uploading ? 'Envoi en cours...' : <><CheckCircle className="w-4 h-4" /> Valider le paiement</>}
             </button>
           )}
         </div>
