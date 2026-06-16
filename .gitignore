@@ -5,6 +5,8 @@
 # Node
 node_modules/
 npm-debug.log*
+coverage/
+backend-api/coverage/
 yarn-debug.log*
 yarn-error.log*
 
@@ -34,10 +36,10 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Prisma
-backend-api/prisma/migrations/
+# Prisma migrations are versioned in git (do not gitignore)
 
-# Flutter
+# SSL certs remain local-only
+nginx/ssl/
 ussd_executor_app/.dart_tool/
 ussd_executor_app/.packages
 ussd_executor_app/build/

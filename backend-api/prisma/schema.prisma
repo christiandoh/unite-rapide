@@ -75,7 +75,7 @@ model User {
   prenom           String?    @db.VarChar(100)
   telephone        String     @unique @db.VarChar(20)
   email            String?    @unique @db.VarChar(255)
-  motDePasseHash   String     @map("mot_de_passe_hash") @db.VarChar(255)
+  codePinHash      String     @map("code_pin_hash") @db.VarChar(255)
   photoUrl         String?    @map("photo_url") @db.VarChar(500)
   emailVerifie     Boolean    @default(false) @map("email_verifie")
   telephoneVerifie Boolean    @default(false) @map("telephone_verifie")

@@ -3,6 +3,8 @@ const { logger } = require('../config/logger');
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
+const MAX_CONCURRENT = parseInt(process.env.USSD_QUEUE_CONCURRENCY || '8', 10);
+
 const ussdQueue = new Queue('ussd-execution', REDIS_URL, {
   defaultJobOptions: {
     attempts: 3,
@@ -12,7 +14,7 @@ const ussdQueue = new Queue('ussd-execution', REDIS_URL, {
     timeout: 60000,
   },
   limiter: {
-    max: 2,
+    max: MAX_CONCURRENT,
     duration: 1000,
   },
   settings: {

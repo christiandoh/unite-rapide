@@ -1,6 +1,7 @@
 const Redis = require('ioredis');
 const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
+const { decrementPhoneActiveTasks } = require('./phoneSelector.service');
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -48,6 +49,10 @@ async function startResultConsumer() {
           where: { id: phoneId },
           data: { statut: 'en_ligne' },
         });
+
+        if (phoneId) {
+          await decrementPhoneActiveTasks(phoneId);
+        }
 
         logger.info(`Resultat USSD traite: commande=${commandeId.slice(0,8)} etat=${taskStatus}`);
       } catch (err) {

@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
+import PinInput from '../components/PinInput';
+import { LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Connexion() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [telephone, setTelephone] = useState('');
-  const [motDePasse, setMotDePasse] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [codePin, setCodePin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,11 +19,15 @@ export default function Connexion() {
       setError('Format: 07, 05 ou 01 + 8 chiffres');
       return;
     }
+    if (codePin.length !== 4) {
+      setError('Entrez votre code à 4 chiffres');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
-      await login(telephone, motDePasse);
-      toast.success('Connecte avec succes');
+      await login(telephone, codePin);
+      toast.success('Connecté avec succès');
       navigate('/catalogue');
     } catch (err) {
       const msg = err.response?.data?.error || 'Erreur de connexion';
@@ -44,12 +48,12 @@ export default function Connexion() {
             <LogIn className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Connexion</h1>
-          <p className="text-sm text-white/50 mt-1">Accedez a votre espace</p>
+          <p className="text-sm text-white/50 mt-1">Numéro + code à 4 chiffres</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">Telephone</label>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Téléphone</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono z-10">+225</span>
               <input type="tel" value={telephone} onChange={(e) => {
@@ -58,20 +62,12 @@ export default function Connexion() {
                 setError('');
               }} className={inputClass + ' pl-14'} required placeholder="0701020304" inputMode="numeric" />
             </div>
-            <p className="text-white/30 text-xs mt-1">Numeros ivorien: 07, 05 ou 01 suivi de 8 chiffres</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">Mot de passe</label>
-            <div className="relative">
-              <input type={showPassword ? 'text' : 'password'} value={motDePasse}
-                onChange={(e) => { setMotDePasse(e.target.value); setError(''); }}
-                className={inputClass + ' pr-11'} required placeholder="Entrez votre mot de passe" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+            <label className="block text-sm font-medium text-white/70 mb-3 text-center">Code secret</label>
+            <PinInput value={codePin} onChange={(v) => { setCodePin(v); setError(''); }} disabled={loading} />
+            <p className="text-white/30 text-xs mt-2 text-center">Code à 4 chiffres choisi à l'inscription</p>
           </div>
 
           {error && (
@@ -80,7 +76,7 @@ export default function Connexion() {
             </div>
           )}
 
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={loading || codePin.length !== 4}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 disabled:opacity-50">
             {loading ? 'Connexion...' : <><LogIn className="w-4 h-4" /> Se connecter</>}
           </button>

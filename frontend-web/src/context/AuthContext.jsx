@@ -21,8 +21,8 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = async (telephone, mot_de_passe) => {
-    const { data } = await auth.login({ telephone, mot_de_passe });
+  const login = async (telephone, code_pin) => {
+    const { data } = await auth.login({ telephone, code_pin });
     localStorage.setItem('token', data.token);
     localStorage.setItem('refreshToken', data.refreshToken);
     localStorage.setItem('user', JSON.stringify(data.user));
