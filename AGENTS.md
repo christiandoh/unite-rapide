@@ -77,7 +77,7 @@ docker compose exec backend-api npx prisma migrate dev --name init   # fresh mig
 
 - **3 isolated Docker networks**: `frontend_network` (front+API), `backend_network` (internal: API+IA+DB+Redis), `phone_network` (internal: WS+phones)
 - **Prisma migrations are gitignored** (`backend-api/prisma/migrations/`). Must generate fresh on new clone.
-- **Wave Business**: no official API integration — just generates payment links (`https://pay.wave.com/m/{CODE}/{amount}`) with QR codes.
+- **Wave Business**: remplacé par **Jeko Partner API** pour les demandes de paiement (`POST /partner_api/payment_requests`, type `redirect`). Webhook Jeko sur `/api/webhook/jeko` avec en-tête `Jeko-Signature`.
 - **Bull queue** (Redis-backed) for USSD task scheduling with rate limiting (max 2 concurrent tasks per phone).
 - **Redis caching** via Prisma `$extends` query middleware (60s TTL, model-level cache invalidation on writes).
 - **WebSocket dual namespace**: `/phones` (Android executor auth via token in Redis), `/web` (browsers subscribe to commande status).

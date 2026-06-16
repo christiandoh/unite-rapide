@@ -28,6 +28,7 @@ const schemas = {
   commande: Joi.object({
     service_id: Joi.string().uuid().required(),
     telephone_beneficiaire: Joi.string().pattern(/^(07|05|01)\d{8}$/).required(),
+    methode_paiement: Joi.string().valid('orange', 'wave', 'mtn', 'moov', 'djamo').optional(),
   }),
 
   uploadProof: Joi.object({

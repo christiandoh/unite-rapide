@@ -137,6 +137,8 @@ model Commande {
   referenceUnique      String   @unique @map("reference_unique") @db.VarChar(20)
   montant              Decimal  @db.Decimal(10, 2)
   lienPaiementWave     String   @map("lien_paiement_wave") @db.Text
+  jekoPaymentRequestId String?  @map("jeko_payment_request_id") @db.VarChar(100)
+  methodePaiement      String?  @map("methode_paiement") @db.VarChar(20)
   statutCommande       String   @default("en_attente_paiement") @map("statut_commande") @db.VarChar(30)
   dateExpirationPaiement DateTime? @map("date_expiration_paiement")
   createdAt            DateTime @default(now()) @map("created_at")

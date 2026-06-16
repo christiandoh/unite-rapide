@@ -35,7 +35,7 @@ if [ ! -f .env ]; then
         echo "  - REDIS_PASSWORD"
         echo "  - JWT_SECRET (min 32 caractères)"
         echo "  - JWT_REFRESH_SECRET (min 32 caractères)"
-        echo "  - WAVE_MERCHANT_CODE"
+        echo "  - JEKO_API_KEY, JEKO_API_KEY_ID, JEKO_STORE_ID"
         echo "  - ADMIN_PIN (code à 4 chiffres)"
         echo ""
         exit 0

@@ -19,6 +19,14 @@ const usersRoutes = require('./routes/users.routes');
 const app = express();
 
 app.set('trust proxy', 1);
+
+// Webhook Jeko : body brut pour vérification HMAC
+app.post(
+  '/api/webhook/jeko',
+  express.raw({ type: 'application/json', limit: '1mb' }),
+  require('./webhooks/jeko.handler'),
+);
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
