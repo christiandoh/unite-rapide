@@ -26,6 +26,11 @@ code=$(echo "$response" | tail -n 1)
 if [ "$code" != "200" ]; then
   echo "❌ Erreur HTTP $code"
   echo "$body" | python3 -m json.tool 2>/dev/null || echo "$body"
+  if echo "$body" | grep -q 'business_not_enabled_for_api_access'; then
+    echo ""
+    echo "→ Activez l'accès API pour votre compte dans Jeko Cockpit"
+    echo "  ou contactez support@jeko.africa / development@jeko.africa"
+  fi
   exit 1
 fi
 
