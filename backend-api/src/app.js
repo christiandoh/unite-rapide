@@ -61,6 +61,7 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
   });
 });
+app.get('/api/health/jeko', require('./controllers/health.controller').jekoHealth);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
