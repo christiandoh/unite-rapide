@@ -2,7 +2,7 @@
 
 ## What this is
 
-Multi-service Docker platform for mobile service subscription (Côte d'Ivoire). Users buy internet/credit packages, pay via Wave Business links, upload screenshots for AI validation, and USSD codes execute on physical Android phones.
+Multi-service Docker platform for mobile service subscription (Côte d'Ivoire). Users buy internet/credit packages, pay via Jeko Mobile Money, and USSD codes execute on physical Android phones.
 
 ## Services & directories
 
@@ -30,9 +30,9 @@ cp .env.example .env   # fill in all required secrets
 ./setup.sh             # builds Docker images, starts services, runs Prisma migrate + seed
 ```
 
-**Required vars** (no defaults): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `WAVE_MERCHANT_CODE`.
+**Required vars** (no defaults): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JEKO_API_KEY`, `JEKO_API_KEY_ID`, `JEKO_STORE_ID`.
 
-Default admin credentials: `0700000000 / admin123`.
+Default admin credentials: set `ADMIN_PHONE` and `ADMIN_PIN` (4-digit code) in `.env` before seeding.
 
 ## Key commands (per service)
 
@@ -77,7 +77,7 @@ docker compose exec backend-api npx prisma migrate dev --name init   # fresh mig
 
 - **3 isolated Docker networks**: `frontend_network` (front+API), `backend_network` (internal: API+IA+DB+Redis), `phone_network` (internal: WS+phones)
 - **Prisma migrations are gitignored** (`backend-api/prisma/migrations/`). Must generate fresh on new clone.
-- **Wave Business**: no official API integration — just generates payment links (`https://pay.wave.com/m/{CODE}/{amount}`) with QR codes.
+- **Wave Business**: remplacé par **Jeko Partner API** pour les demandes de paiement (`POST /partner_api/payment_requests`, type `redirect`). Webhook Jeko sur `/api/webhook/jeko` avec en-tête `Jeko-Signature`.
 - **Bull queue** (Redis-backed) for USSD task scheduling with rate limiting (max 2 concurrent tasks per phone).
 - **Redis caching** via Prisma `$extends` query middleware (60s TTL, model-level cache invalidation on writes).
 - **WebSocket dual namespace**: `/phones` (Android executor auth via token in Redis), `/web` (browsers subscribe to commande status).

@@ -75,7 +75,7 @@ model User {
   prenom           String?    @db.VarChar(100)
   telephone        String     @unique @db.VarChar(20)
   email            String?    @unique @db.VarChar(255)
-  motDePasseHash   String     @map("mot_de_passe_hash") @db.VarChar(255)
+  codePinHash      String     @map("code_pin_hash") @db.VarChar(255)
   photoUrl         String?    @map("photo_url") @db.VarChar(500)
   emailVerifie     Boolean    @default(false) @map("email_verifie")
   telephoneVerifie Boolean    @default(false) @map("telephone_verifie")
@@ -136,7 +136,9 @@ model Commande {
   telephoneBeneficiaire String  @map("telephone_beneficiaire") @db.VarChar(20)
   referenceUnique      String   @unique @map("reference_unique") @db.VarChar(20)
   montant              Decimal  @db.Decimal(10, 2)
-  lienPaiementWave     String   @map("lien_paiement_wave") @db.Text
+  lienPaiement          String   @map("lien_paiement") @db.Text
+  jekoPaymentRequestId String?  @map("jeko_payment_request_id") @db.VarChar(100)
+  methodePaiement      String?  @map("methode_paiement") @db.VarChar(20)
   statutCommande       String   @default("en_attente_paiement") @map("statut_commande") @db.VarChar(30)
   dateExpirationPaiement DateTime? @map("date_expiration_paiement")
   createdAt            DateTime @default(now()) @map("created_at")

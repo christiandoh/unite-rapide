@@ -168,30 +168,22 @@ async function revalider(req, res, next) {
       });
 
       if (action === 'valider') {
-        const commande = await tx.commande.update({
+        // Le paiement et la tâche USSD sont planifiés après la transaction
+      } else {
+        await tx.commande.update({
           where: { id },
-          data: { statutCommande: 'paiement_valide' },
-          include: { service: { select: { codeUssd: true, sequenceUssd: true, operateur: { select: { nom: true } } } } },
+          data: { statutCommande: 'paiement_rejete' },
         });
-
-        const task = await tx.tacheUSSD.create({
-          data: {
-            commandeId: id,
-            priorite: 5,
-            statutExecution: 'en_attente',
-            logsExecution: [],
-            nombreTentatives: 0,
-            tentativeMax: 3,
-          },
-        });
-
-        // Dispatch outside transaction
-        _dispatchUSSD(task, commande).catch(err =>
-          logger.error('Erreur dispatch USSD', { taskId: task.id, error: err.message }));
-
-        logger.info('Tache USSD creee', { taskId: task.id, commandeId: id });
       }
     });
+
+    if (action === 'valider') {
+      const { confirmPaymentAndScheduleUssd } = require('../services/paymentValidation.service');
+      await confirmPaymentAndScheduleUssd(id, 'validation_manuelle', {
+        adminId: req.user.id,
+        commentaire: commentaire || null,
+      });
+    }
 
     logger.info('Revalidation manuelle effectuee', {
       commandeId: id,
@@ -577,7 +569,7 @@ async function executerUssd(req, res, next) {
           referenceUnique: reference,
           montant: service.montantWave,
           statutCommande: 'paiement_valide',
-          lienPaiementWave: '',
+          lienPaiement: '',
           dateExpirationPaiement: new Date(Date.now() + 900000),
         },
       });
@@ -709,4 +701,27 @@ async function gammuSms(req, res, next) {
   }
 }
 
-module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd, testUssd, gammuStatus, gammuUssd, gammuSms };
+async function jekoStores(req, res, next) {
+  try {
+    const { listStores, hasCredentials, isConfigured } = require('../services/jeko.service');
+    if (!hasCredentials()) {
+      return res.status(503).json({ error: 'JEKO_API_KEY et JEKO_API_KEY_ID requis dans .env' });
+    }
+    const stores = await listStores();
+    res.json({ stores, configured: isConfigured() });
+  } catch (error) {
+    const msg = error.response?.data?.message || error.message;
+    res.status(error.response?.status || 502).json({ error: msg });
+  }
+}
+
+async function jekoConfig(req, res) {
+  const { isConfigured, hasCredentials } = require('../services/jeko.service');
+  res.json({
+    has_credentials: hasCredentials(),
+    configured: isConfigured(),
+    store_id: process.env.JEKO_STORE_ID || null,
+  });
+}
+
+module.exports = { dashboard, telephones, commandes, revalider, logs, listServices, createService, updateService, deleteService, historique, createTelephone, updateTelephone, deleteTelephone, executerUssd, testUssd, gammuStatus, gammuUssd, gammuSms, jekoStores, jekoConfig };

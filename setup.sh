@@ -35,7 +35,8 @@ if [ ! -f .env ]; then
         echo "  - REDIS_PASSWORD"
         echo "  - JWT_SECRET (min 32 caractères)"
         echo "  - JWT_REFRESH_SECRET (min 32 caractères)"
-        echo "  - WAVE_MERCHANT_CODE"
+        echo "  - JEKO_API_KEY, JEKO_API_KEY_ID, JEKO_STORE_ID"
+        echo "  - ADMIN_PIN (code à 4 chiffres)"
         echo ""
         exit 0
     else
@@ -53,8 +54,11 @@ docker compose up -d
 echo -e "${BLUE}⏳ Attente du démarrage des services...${NC}"
 sleep 15
 
+echo -e "${BLUE}🔐 Génération des certificats SSL dev...${NC}"
+bash scripts/generate-ssl.sh nginx/ssl 2>/dev/null || true
+
 echo -e "${BLUE}🗄️  Exécution des migrations Prisma...${NC}"
-docker compose exec backend-api npx prisma migrate dev --name init
+docker compose exec backend-api npx prisma migrate deploy
 
 echo -e "${BLUE}🌱 Insertion des données initiales...${NC}"
 docker compose exec backend-api npm run seed
@@ -69,5 +73,5 @@ echo -e "  🔧 Admin:       ${BLUE}http://localhost/admin${NC}"
 echo -e "  📡 API:         ${BLUE}http://localhost:3000/api${NC}"
 echo -e "  🗄️  Prisma Studio: ${BLUE}http://localhost:5555${NC}"
 echo ""
-echo -e "  Admin par défaut: ${BLUE}0700000000 / admin123${NC}"
+echo -e "  Admin: configurez ADMIN_PHONE et ADMIN_PIN dans .env avant le seed"
 echo ""

@@ -10,6 +10,7 @@ export default function Commande() {
   const { user } = useAuth();
   const [service, setService] = useState(null);
   const [telephone, setTelephone] = useState('');
+  const [methodePaiement, setMethodePaiement] = useState('wave');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -35,13 +36,25 @@ export default function Commande() {
     if (telephone.length < 10) return;
     setSubmitting(true);
     try {
-      const { data } = await commandes.create({ service_id: serviceId, telephone_beneficiaire: telephone });
+      const { data } = await commandes.create({
+        service_id: serviceId,
+        telephone_beneficiaire: telephone,
+        methode_paiement: methodePaiement,
+      });
       navigate(`/paiement/${data.commande.id}`);
     } catch (err) {
       console.error(err);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handlePhoneChange(value) {
+    const v = value.replace(/\D/g, '').slice(0, 10);
+    setTelephone(v);
+    const prefix = v.substring(0, 2);
+    const map = { '07': 'orange', '05': 'mtn', '01': 'moov' };
+    if (map[prefix]) setMethodePaiement(map[prefix]);
   }
 
   if (loading) return <div className="min-h-screen bg-gradient-to-br from-[#0D0D1A] via-[#16162A] to-[#0D0D1A] flex items-center justify-center"><div className="text-center py-20 text-white/50">Chargement...</div></div>;
@@ -95,10 +108,20 @@ export default function Commande() {
               </div>
             </label>
             <input type="tel" value={telephone}
-              onChange={(e) => setTelephone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              onChange={(e) => handlePhoneChange(e.target.value)}
               placeholder="0701020304"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors mb-6"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg text-white placeholder-white/30 focus:outline-none focus:border-[#7C5CFC] transition-colors mb-4"
               required pattern="0[715]\d{8}" />
+
+            <label className="block text-xs sm:text-sm font-medium text-white/70 mb-2">Méthode de paiement</label>
+            <select value={methodePaiement} onChange={(e) => setMethodePaiement(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white focus:outline-none focus:border-[#7C5CFC] mb-6">
+              <option value="wave" className="bg-[#16162A]">Wave</option>
+              <option value="orange" className="bg-[#16162A]">Orange Money</option>
+              <option value="mtn" className="bg-[#16162A]">MTN MoMo</option>
+              <option value="moov" className="bg-[#16162A]">Moov Money</option>
+              <option value="djamo" className="bg-[#16162A]">Djamo</option>
+            </select>
             <button type="submit" disabled={submitting || telephone.length !== 10}
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#7C5CFC] to-[#A78BFF] text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-[#7C5CFC]/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
               {submitting ? 'Creation en cours...' : <><span>Continuer vers le paiement</span> <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></>}

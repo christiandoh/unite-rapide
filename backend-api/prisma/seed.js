@@ -8,17 +8,22 @@ async function main() {
 
   const adminPhone = process.env.ADMIN_PHONE || '0700000000';
   const adminEmail = process.env.ADMIN_EMAIL || null;
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminPin = process.env.ADMIN_PIN;
 
-  const hash = await bcrypt.hash(adminPassword, 12);
+  if (!adminPin || !/^\d{4}$/.test(adminPin)) {
+    throw new Error('ADMIN_PIN requis — doit être un code à 4 chiffres (ex: ADMIN_PIN=4829)');
+  }
+
+  const hash = await bcrypt.hash(adminPin, 12);
 
   const adminData = {
     nom: 'Admin',
     prenom: 'Super',
     telephone: adminPhone,
-    motDePasseHash: hash,
+    codePinHash: hash,
     statut: 'actif',
     role: 'admin',
+    telephoneVerifie: true,
   };
   if (adminEmail) adminData.email = adminEmail;
 
@@ -27,7 +32,7 @@ async function main() {
     update: adminData,
     create: adminData,
   });
-  console.log(`✓ Admin créé: ${admin.telephone}${admin.email ? ' / ' + admin.email : ''}`);
+  console.log(`✓ Admin créé: ${admin.telephone} (code PIN configuré via ADMIN_PIN)`);
 
   const operateurs = await Promise.all([
     prisma.operateur.upsert({

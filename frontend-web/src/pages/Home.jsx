@@ -89,7 +89,7 @@ export default function Home() {
 
           <p className="text-lg md:text-xl text-white/50 mb-10 max-w-2xl mx-auto leading-relaxed">
             Souscrivez a vos forfaits Orange, MTN et Moov en ligne. 
-            Paiement Wave securise et activation automatique en moins de 5 minutes.
+            Paiement Mobile Money sécurisé via Jeko et activation automatique en moins de 5 minutes.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -158,7 +158,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: Smartphone, title: 'Choisissez', desc: 'Parcourez notre catalogue et selectionnez le forfait qui vous convient', color: 'from-[#7C5CFC] to-[#A78BFF]', step: '01' },
-              { icon: CreditCard, title: 'Payez', desc: 'Effectuez le paiement via Wave en toute securite', color: 'from-[#2ED3A0] to-[#5EE0B8]', step: '02' },
+              { icon: CreditCard, title: 'Payez', desc: 'Payez via Wave, Orange, MTN, Moov ou Djamo (Jeko)', color: 'from-[#2ED3A0] to-[#5EE0B8]', step: '02' },
               { icon: Zap, title: 'Activez', desc: 'Votre forfait est active automatiquement en moins de 5 minutes', color: 'from-[#3B82F6] to-[#60A5FA]', step: '03' },
             ].map((item) => (
               <div key={item.title} className="group relative bg-white/[0.03] border border-white/5 rounded-2xl p-8 text-center hover:bg-white/[0.06] hover:border-white/10 transition-all duration-500">
@@ -222,7 +222,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: Shield, title: 'Paiement securise', desc: 'Transactions via Wave Business avec validation par IA pour une securite maximale' },
+              { icon: Shield, title: 'Paiement securise', desc: 'Transactions via Jeko avec confirmation automatique par webhook' },
               { icon: Zap, title: 'Activation rapide', desc: 'Votre forfait est active en moins de 5 minutes apres confirmation du paiement' },
               { icon: Users, title: 'Support client', desc: 'Une equipe dediee pour vous accompagner 7j/7 par telephone et WhatsApp' },
               { icon: Star, title: 'Meilleurs prix', desc: 'Forfaits aux meilleurs tarifs negocies directement avec les operateurs' },
@@ -252,7 +252,7 @@ export default function Home() {
             {[
               { name: 'Kouassi A.', text: 'Service rapide et fiable. J\'ai active mon forfait en moins de 2 minutes !', rating: 5 },
               { name: 'Diallo F.', text: 'Enfin une plateforme qui marche vraiment au pays. Je recommande.', rating: 5 },
-              { name: 'Bamba M.', text: 'Le paiement Wave est super pratique. Plus besoin de chercher du credit.', rating: 4 },
+              { name: 'Bamba M.', text: 'Le paiement mobile est super pratique avec Jeko. Rapide et fiable.', rating: 4 },
             ].map((t) => (
               <div key={t.name} className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
                 <div className="flex gap-1 mb-4">

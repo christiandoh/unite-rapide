@@ -20,7 +20,7 @@ export default function Footer() {
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <li>Forfaits Internet</li>
               <li>Credit d'appel</li>
-              <li>Paiement Wave securise</li>
+              <li>Paiement Mobile Money (Jeko)</li>
               <li>Activation automatique</li>
             </ul>
           </div>
@@ -30,7 +30,7 @@ export default function Footer() {
               <span className="font-semibold text-white text-sm sm:text-base">Securise</span>
             </div>
             <p className="text-xs sm:text-sm leading-relaxed text-white/50 mb-3">
-              Paiements 100% securises via Wave. Vos donnees sont protegees.
+              Paiements sécurisés via Jeko (Wave, Orange, MTN, Moov, Djamo).
             </p>
             <div className="flex items-center gap-2 text-xs sm:text-sm">
               <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7C5CFC] shrink-0" />

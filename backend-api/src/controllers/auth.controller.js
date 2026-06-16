@@ -2,12 +2,13 @@ const bcrypt = require('bcrypt');
 const prisma = require('../config/prisma');
 const { generateTokens, verifyRefreshToken } = require('../config/jwt');
 const { logger } = require('../config/logger');
+const { isValidPin, normalizePin } = require('../utils/pin');
 
 const SALT_ROUNDS = 12;
 
 async function register(req, res, next) {
   try {
-    const { nom, prenom, telephone, email, mot_de_passe } = req.body;
+    const { nom, prenom, telephone, email, code_pin } = req.body;
 
     const existing = await prisma.user.findFirst({
       where: {
@@ -21,7 +22,7 @@ async function register(req, res, next) {
       });
     }
 
-    const motDePasseHash = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+    const codePinHash = await bcrypt.hash(normalizePin(code_pin), SALT_ROUNDS);
 
     const user = await prisma.user.create({
       data: {
@@ -29,7 +30,8 @@ async function register(req, res, next) {
         prenom: prenom || null,
         telephone,
         email: email || null,
-        motDePasseHash,
+        codePinHash,
+        telephoneVerifie: true,
       },
       select: {
         id: true,
@@ -38,6 +40,7 @@ async function register(req, res, next) {
         telephone: true,
         email: true,
         statut: true,
+        role: true,
         createdAt: true,
       },
     });
@@ -58,24 +61,17 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { telephone, email, mot_de_passe } = req.body;
-    const identifiant = telephone || email;
+    const { telephone, code_pin } = req.body;
 
-    if (!identifiant) {
-      return res.status(400).json({ error: 'Téléphone ou email requis' });
-    }
-
-    const user = email
-      ? await prisma.user.findUnique({ where: { email } })
-      : await prisma.user.findUnique({ where: { telephone: identifiant } });
+    const user = await prisma.user.findUnique({ where: { telephone } });
 
     if (!user || user.statut !== 'actif') {
-      return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect' });
+      return res.status(401).json({ error: 'Numéro ou code incorrect' });
     }
 
-    const isValid = await bcrypt.compare(mot_de_passe, user.motDePasseHash);
+    const isValid = await bcrypt.compare(normalizePin(code_pin), user.codePinHash);
     if (!isValid) {
-      return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect' });
+      return res.status(401).json({ error: 'Numéro ou code incorrect' });
     }
 
     await prisma.user.update({
@@ -85,7 +81,7 @@ async function login(req, res, next) {
 
     const tokens = generateTokens({ userId: user.id });
 
-    logger.info('Utilisateur connecté', { userId: user.id, identifiant });
+    logger.info('Utilisateur connecté', { userId: user.id, telephone });
 
     res.json({
       token: tokens.accessToken,
@@ -96,6 +92,7 @@ async function login(req, res, next) {
         prenom: user.prenom,
         telephone: user.telephone,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -119,65 +116,26 @@ async function refreshToken(req, res, next) {
   }
 }
 
-async function verifyPhone(req, res, next) {
+async function changePin(req, res, next) {
   try {
-    const { telephone, code } = req.body;
+    const { ancien_code, nouveau_code } = req.body;
 
-    if (!telephone || !code) {
-      return res.status(400).json({ error: 'Téléphone et code requis' });
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    const isValid = await bcrypt.compare(normalizePin(ancien_code), user.codePinHash);
+    if (!isValid) {
+      return res.status(400).json({ error: 'Ancien code incorrect' });
     }
 
-    const redis = require('../config/redis');
-    const storedCode = await redis.get(`sms:verify:${telephone}`);
-
-    if (!storedCode) {
-      return res.status(400).json({ error: 'Code expiré ou inexistant. Demandez un nouveau code.' });
-    }
-
-    if (storedCode !== code) {
-      return res.status(400).json({ error: 'Code incorrect' });
-    }
-
-    await redis.del(`sms:verify:${telephone}`);
-
-    await prisma.user.updateMany({
-      where: { telephone },
-      data: { telephoneVerifie: true },
+    const codePinHash = await bcrypt.hash(normalizePin(nouveau_code), SALT_ROUNDS);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { codePinHash },
     });
 
-    await prisma.transactionLog.create({
-      data: {
-        typeEvenement: 'telephone_verifie',
-        severite: 'info',
-        details: { telephone },
-      },
-    });
-
-    logger.info(`Téléphone vérifié: ${telephone}`);
-    res.json({ message: 'Téléphone vérifié avec succès' });
+    res.json({ message: 'Code modifié avec succès' });
   } catch (error) {
     next(error);
   }
 }
 
-async function sendVerifyCode(req, res, next) {
-  try {
-    const { telephone } = req.body;
-
-    if (!telephone) {
-      return res.status(400).json({ error: 'Téléphone requis' });
-    }
-
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const redis = require('../config/redis');
-
-    await redis.setex(`sms:verify:${telephone}`, 300, code);
-    logger.info(`Code de vérification généré pour ${telephone}: ${code}`);
-
-    res.json({ message: 'Code de vérification envoyé' });
-  } catch (error) {
-    next(error);
-  }
-}
-
-module.exports = { register, login, refreshToken, verifyPhone, sendVerifyCode };
+module.exports = { register, login, refreshToken, changePin };

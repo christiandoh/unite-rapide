@@ -79,10 +79,18 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
       IA_VALIDATOR_URL: http://ia-validator:8000
       WS_SERVER_URL: http://websocket-server:8080
-      WAVE_MERCHANT_CODE: ${WAVE_MERCHANT_CODE}
+      JEKO_API_KEY: ${JEKO_API_KEY:?JEKO_API_KEY is required}
+      JEKO_API_KEY_ID: ${JEKO_API_KEY_ID:?JEKO_API_KEY_ID is required}
+      JEKO_STORE_ID: ${JEKO_STORE_ID:?JEKO_STORE_ID is required}
+      JEKO_WEBHOOK_SECRET: ${JEKO_WEBHOOK_SECRET:-}
+      JEKO_DEFAULT_PAYMENT_METHOD: ${JEKO_DEFAULT_PAYMENT_METHOD:-wave}
+      JEKO_API_BASE: ${JEKO_API_BASE:-https://api.jeko.africa}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8082}
       UPLOAD_DIR: /app/uploads
       CORS_ORIGIN: ${CORS_ORIGIN:-https://ussd-automation.com}
       PORT: 3000
+      USSD_MAX_CONCURRENT_PER_PHONE: ${USSD_MAX_CONCURRENT_PER_PHONE:-4}
+      USSD_QUEUE_CONCURRENCY: ${USSD_QUEUE_CONCURRENCY:-8}
     volumes:
       - uploads:/app/uploads
       - logs:/app/logs
