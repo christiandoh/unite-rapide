@@ -7,14 +7,23 @@ const schemas = {
     telephone: Joi.string().pattern(/^(07|05|01)\d{8}$/).required()
       .messages({ 'string.pattern.base': 'Format téléphone invalide (ex: 0701020304)' }),
     email: Joi.string().email().allow(''),
-    mot_de_passe: Joi.string().min(8).max(128).required(),
+    code_pin: Joi.string().pattern(/^\d{4}$/).required()
+      .messages({ 'string.pattern.base': 'Le code doit contenir exactement 4 chiffres' }),
   }),
 
   login: Joi.object({
-    telephone: Joi.string().pattern(/^(07|05|01)\d{8}$/),
-    email: Joi.string().email(),
-    mot_de_passe: Joi.string().required(),
-  }).xor('telephone', 'email'),
+    telephone: Joi.string().pattern(/^(07|05|01)\d{8}$/).required()
+      .messages({ 'string.pattern.base': 'Format téléphone invalide (ex: 0701020304)' }),
+    code_pin: Joi.string().pattern(/^\d{4}$/).required()
+      .messages({ 'string.pattern.base': 'Le code doit contenir exactement 4 chiffres' }),
+  }),
+
+  changePin: Joi.object({
+    ancien_code: Joi.string().pattern(/^\d{4}$/).required(),
+    nouveau_code: Joi.string().pattern(/^\d{4}$/).required()
+      .invalid(Joi.ref('ancien_code'))
+      .messages({ 'any.invalid': 'Le nouveau code doit être différent de l\'ancien' }),
+  }),
 
   commande: Joi.object({
     service_id: Joi.string().uuid().required(),

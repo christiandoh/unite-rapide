@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, 'cursor/**']
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend-api/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm test
+
+  backend-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend-api/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [frontend-web, admin-dashboard]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ matrix.app }}
+      - run: npm run build
+        working-directory: ${{ matrix.app }}
+
+  prisma-migrations-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify migrations are versioned
+        run: |
+          test -d backend-api/prisma/migrations
+          test -f backend-api/prisma/migrations/migration_lock.toml
+          ls backend-api/prisma/migrations/*/migration.sql

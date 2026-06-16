@@ -32,7 +32,7 @@ cp .env.example .env   # fill in all required secrets
 
 **Required vars** (no defaults): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `WAVE_MERCHANT_CODE`.
 
-Default admin credentials: `0700000000 / admin123`.
+Default admin credentials: set `ADMIN_PHONE` and `ADMIN_PIN` (4-digit code) in `.env` before seeding.
 
 ## Key commands (per service)
 

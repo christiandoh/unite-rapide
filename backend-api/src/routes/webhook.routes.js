@@ -2,13 +2,13 @@ const { Router } = require('express');
 const crypto = require('crypto');
 const prisma = require('../config/prisma');
 const { logger } = require('../config/logger');
+const { confirmPaymentAndScheduleUssd, VALIDATED_STATUSES } = require('../services/paymentValidation.service');
 
 const router = Router();
 
 function verifyWaveSignature(req, res, next) {
   const secret = process.env.WAVE_WEBHOOK_SECRET;
   if (!secret) {
-    // Pas de secret configuré → mode compatibilité (log warning)
     logger.warn('WAVE_WEBHOOK_SECRET non configuré, vérification de signature désactivée');
     return next();
   }
@@ -49,10 +49,6 @@ router.post('/wave', verifyWaveSignature, async (req, res) => {
 
     const commande = await prisma.commande.findUnique({
       where: { referenceUnique: reference },
-      include: {
-        preuvesPaiement: { orderBy: { createdAt: 'desc' }, take: 1 },
-        service: { select: { codeUssd: true, sequenceUssd: true, operateur: { select: { nom: true } } } },
-      },
     });
 
     if (!commande) {
@@ -61,56 +57,37 @@ router.post('/wave', verifyWaveSignature, async (req, res) => {
 
     const isSuccess = status === 'success' || status === 'completed';
 
-    await prisma.$transaction(async (tx) => {
-      if (isSuccess) {
-        await tx.commande.update({
-          where: { id: commande.id },
-          data: { statutCommande: 'paiement_valide' },
-        });
+    if (isSuccess) {
+      const result = await confirmPaymentAndScheduleUssd(commande.id, 'webhook_wave', {
+        reference,
+        transaction_id,
+        amount,
+      });
 
-        const tache = await tx.tacheUSSD.create({
-          data: {
-            commandeId: commande.id,
-            priorite: 5,
-            statutExecution: 'en_attente',
-            logsExecution: [],
-            nombreTentatives: 0,
-            tentativeMax: 3,
-          },
-        });
+      return res.json({
+        received: true,
+        commandeId: commande.id,
+        status: result.skipped ? 'deja_valide' : 'valide',
+      });
+    }
 
-        await tx.transactionLog.create({
-          data: {
-            typeEvenement: 'paiement_valide',
-            severite: 'info',
-            details: { reference, transaction_id, amount, via: 'webhook_wave' },
-            commandeId: commande.id,
-          },
-        });
+    if (!VALIDATED_STATUSES.has(commande.statutCommande)) {
+      await prisma.commande.update({
+        where: { id: commande.id },
+        data: { statutCommande: 'paiement_rejete' },
+      });
 
-        logger.info(`Paiement validé via webhook: ${reference}`);
+      await prisma.transactionLog.create({
+        data: {
+          typeEvenement: 'paiement_rejete',
+          severite: 'warning',
+          details: { reference, transaction_id, reason: status, via: 'webhook_wave' },
+          commandeId: commande.id,
+        },
+      });
+    }
 
-        // Utiliser la Bull queue au lieu de Redis publish direct
-        const { executionQueue } = require('../jobs/executionJob');
-        await executionQueue.add({ taskId: tache.id, commandeId: commande.id });
-      } else {
-        await tx.commande.update({
-          where: { id: commande.id },
-          data: { statutCommande: 'paiement_rejete' },
-        });
-
-        await tx.transactionLog.create({
-          data: {
-            typeEvenement: 'paiement_rejete',
-            severite: 'warning',
-            details: { reference, transaction_id, reason: status },
-            commandeId: commande.id,
-          },
-        });
-      }
-    });
-
-    res.json({ received: true, commandeId: commande.id, status: isSuccess ? 'valide' : 'rejete' });
+    res.json({ received: true, commandeId: commande.id, status: 'rejete' });
   } catch (error) {
     logger.error('Erreur traitement webhook Wave', { error: error.message });
     res.status(500).json({ error: 'Erreur interne' });

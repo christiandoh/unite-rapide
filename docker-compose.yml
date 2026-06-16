@@ -83,6 +83,8 @@ services:
       UPLOAD_DIR: /app/uploads
       CORS_ORIGIN: ${CORS_ORIGIN:-https://ussd-automation.com}
       PORT: 3000
+      USSD_MAX_CONCURRENT_PER_PHONE: ${USSD_MAX_CONCURRENT_PER_PHONE:-4}
+      USSD_QUEUE_CONCURRENCY: ${USSD_QUEUE_CONCURRENCY:-8}
     volumes:
       - uploads:/app/uploads
       - logs:/app/logs

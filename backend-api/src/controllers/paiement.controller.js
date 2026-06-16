@@ -101,28 +101,11 @@ async function validateWithIA(commande, preuve, file) {
   });
 
   if (decision === 'valide_auto') {
-    await prisma.commande.update({
-      where: { id: commande.id },
-      data: { statutCommande: 'paiement_valide' },
-    });
+    const { confirmPaymentAndScheduleUssd } = require('../services/paymentValidation.service');
+    await confirmPaymentAndScheduleUssd(commande.id, 'validation_ia', { score, preuveId: preuve.id });
 
-    const task = await prisma.tacheUSSD.create({
-      data: {
-        commandeId: commande.id,
-        priorite: 5,
-        statutExecution: 'en_attente',
-        logsExecution: [],
-        nombreTentatives: 0,
-        tentativeMax: 3,
-      },
-    });
-
-    const { executionQueue } = require('../jobs/executionJob');
-    await executionQueue.add({ taskId: task.id, commandeId: commande.id });
-
-    logger.info('Validation IA auto OK, tache USSD creee', {
+    logger.info('Validation IA auto OK, tache USSD planifiee', {
       commandeId: commande.id,
-      taskId: task.id,
       score,
     });
   } else {
