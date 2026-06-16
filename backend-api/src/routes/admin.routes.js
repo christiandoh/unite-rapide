@@ -28,5 +28,7 @@ router.post('/gammu/ussd', adminController.gammuUssd);
 router.post('/gammu/sms', adminController.gammuSms);
 
 router.get('/stats/historique', adminController.historique);
+router.get('/jeko/config', adminController.jekoConfig);
+router.get('/jeko/stores', adminController.jekoStores);
 
 module.exports = router;

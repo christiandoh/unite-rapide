@@ -5,7 +5,7 @@ const VALIDATED_STATUSES = new Set(['paiement_valide', 'en_cours_execution', 'ex
 
 /**
  * Valide un paiement et déclenche l'exécution USSD si pas déjà fait.
- * Utilisé par le webhook Wave, la validation IA et la revalidation admin.
+ * Utilisé par le webhook Jeko, la validation manuelle admin.
  */
 async function confirmPaymentAndScheduleUssd(commandeId, source, details = {}) {
   const commande = await prisma.commande.findUnique({

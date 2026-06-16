@@ -30,7 +30,7 @@ async function create(req, res, next) {
         telephoneBeneficiaire: telephone_beneficiaire,
         referenceUnique: reference,
         montant: service.montantWave,
-        lienPaiementWave: '',
+        lienPaiement: '',
         dateExpirationPaiement: new Date(Date.now() + 15 * 60 * 1000),
       },
       include: {
@@ -59,7 +59,7 @@ async function create(req, res, next) {
     const updated = await prisma.commande.update({
       where: { id: commande.id },
       data: {
-        lienPaiementWave: paymentData.url,
+        lienPaiement: paymentData.url,
         jekoPaymentRequestId: paymentData.paymentRequestId,
         methodePaiement: paymentData.paymentMethod,
       },

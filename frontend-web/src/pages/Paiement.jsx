@@ -46,12 +46,12 @@ export default function Paiement() {
   }
 
   function handlePay() {
-    if (!commande?.lienPaiementWave) {
+    if (!commande?.lienPaiement) {
       toast.error('Lien de paiement indisponible');
       return;
     }
     setLoading(true);
-    window.location.href = commande.lienPaiementWave;
+    window.location.href = commande.lienPaiement;
   }
 
   const minutes = Math.floor(timeLeft / 60);
@@ -104,7 +104,7 @@ export default function Paiement() {
             </div>
           )}
 
-          {commande?.lienPaiementWave ? (
+          {commande?.lienPaiement ? (
             <button
               onClick={handlePay}
               disabled={loading || timeLeft <= 0}

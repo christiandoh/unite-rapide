@@ -15,6 +15,10 @@ function isConfigured() {
   return Boolean(JEKO_API_KEY && JEKO_API_KEY_ID && JEKO_STORE_ID);
 }
 
+function hasCredentials() {
+  return Boolean(JEKO_API_KEY && JEKO_API_KEY_ID);
+}
+
 function inferPaymentMethod(telephone) {
   if (!telephone) return DEFAULT_METHOD;
   const local = telephone.replace(/^\+225/, '').replace(/\D/g, '');
@@ -35,8 +39,8 @@ function formatPhoneE164(telephone) {
 }
 
 function buildClient() {
-  if (!isConfigured()) {
-    throw new Error('Configuration Jeko incomplète (JEKO_API_KEY, JEKO_API_KEY_ID, JEKO_STORE_ID)');
+  if (!hasCredentials()) {
+    throw new Error('Configuration Jeko incomplète (JEKO_API_KEY et JEKO_API_KEY_ID requis)');
   }
   return axios.create({
     baseURL: JEKO_API_BASE,
@@ -47,6 +51,18 @@ function buildClient() {
       'Content-Type': 'application/json',
     },
   });
+}
+
+async function listStores() {
+  const client = buildClient();
+  const { data } = await client.get('/partner_api/stores');
+  return data;
+}
+
+async function getPaymentRequest(paymentRequestId) {
+  const client = buildClient();
+  const { data } = await client.get(`/partner_api/payment_requests/${paymentRequestId}`);
+  return data;
 }
 
 /**
@@ -60,6 +76,10 @@ async function createPaymentRequest({
   payerPhone,
   paymentMethod,
 }) {
+  if (!JEKO_STORE_ID) {
+    throw new Error('JEKO_STORE_ID manquant — listez vos magasins via GET /api/admin/jeko/stores');
+  }
+
   const client = buildClient();
   const method = normalizePaymentMethod(paymentMethod || inferPaymentMethod(payerPhone));
   const amountCents = Math.round(Number(amount));
@@ -119,8 +139,11 @@ async function createPaymentRequestWithQR(options) {
 module.exports = {
   createPaymentRequest,
   createPaymentRequestWithQR,
+  listStores,
+  getPaymentRequest,
   inferPaymentMethod,
   normalizePaymentMethod,
   isConfigured,
+  hasCredentials,
   VALID_METHODS,
 };

@@ -2,6 +2,7 @@ const {
   inferPaymentMethod,
   normalizePaymentMethod,
   isConfigured,
+  hasCredentials,
   VALID_METHODS,
 } = require('../../src/services/jeko.service');
 
@@ -23,7 +24,7 @@ describe('jeko.service helpers', () => {
     expect(VALID_METHODS.has('djamo')).toBe(true);
   });
 
-  test('isConfigured returns false without env vars', () => {
-    expect(isConfigured()).toBe(false);
+  test('hasCredentials returns false without env vars', () => {
+    expect(hasCredentials()).toBe(false);
   });
 });

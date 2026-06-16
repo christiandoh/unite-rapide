@@ -31,10 +31,6 @@ const schemas = {
     methode_paiement: Joi.string().valid('orange', 'wave', 'mtn', 'moov', 'djamo').optional(),
   }),
 
-  uploadProof: Joi.object({
-    commande_id: Joi.string().uuid().required(),
-  }),
-
   revalidation: Joi.object({
     action: Joi.string().valid('valider', 'rejeter').required(),
     commentaire: Joi.string().max(500).allow(''),

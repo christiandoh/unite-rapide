@@ -2,7 +2,7 @@
 
 ## What this is
 
-Multi-service Docker platform for mobile service subscription (Côte d'Ivoire). Users buy internet/credit packages, pay via Wave Business links, upload screenshots for AI validation, and USSD codes execute on physical Android phones.
+Multi-service Docker platform for mobile service subscription (Côte d'Ivoire). Users buy internet/credit packages, pay via Jeko Mobile Money, and USSD codes execute on physical Android phones.
 
 ## Services & directories
 
@@ -30,7 +30,7 @@ cp .env.example .env   # fill in all required secrets
 ./setup.sh             # builds Docker images, starts services, runs Prisma migrate + seed
 ```
 
-**Required vars** (no defaults): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `WAVE_MERCHANT_CODE`.
+**Required vars** (no defaults): `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JEKO_API_KEY`, `JEKO_API_KEY_ID`, `JEKO_STORE_ID`.
 
 Default admin credentials: set `ADMIN_PHONE` and `ADMIN_PIN` (4-digit code) in `.env` before seeding.
 

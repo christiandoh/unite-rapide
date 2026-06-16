@@ -68,9 +68,6 @@ export const commandes = {
 };
 
 export const paiement = {
-  uploadProof: (formData) => api.post('/paiement/upload-proof', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
   getStatus: (commandeId) => api.get(`/paiement/status/${commandeId}`),
 };
 

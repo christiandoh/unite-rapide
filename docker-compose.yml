@@ -79,7 +79,6 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
       IA_VALIDATOR_URL: http://ia-validator:8000
       WS_SERVER_URL: http://websocket-server:8080
-      WAVE_MERCHANT_CODE: ${WAVE_MERCHANT_CODE:-}
       JEKO_API_KEY: ${JEKO_API_KEY:?JEKO_API_KEY is required}
       JEKO_API_KEY_ID: ${JEKO_API_KEY_ID:?JEKO_API_KEY_ID is required}
       JEKO_STORE_ID: ${JEKO_STORE_ID:?JEKO_STORE_ID is required}
